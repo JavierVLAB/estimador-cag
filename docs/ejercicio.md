@@ -200,13 +200,13 @@ También puedes usar la interfaz de Swagger UI accediendo a `http://localhost:80
 
 Antes de considerar el ejercicio completado, verifica:
 
-- [ ] El proyecto arranca sin errores con `uv run uvicorn app.main:app --reload`
-- [ ] Las API keys se cargan desde `.env` y nunca aparecen en el código
-- [ ] El endpoint `GET /health` responde con status 200
-- [ ] El endpoint `POST /api/v1/estimate` recibe una transcripción y devuelve una estimación
-- [ ] La estimación generada hace referencia o se inspira en los ejemplos de contexto inyectados
-- [ ] La documentación Swagger está accesible en `/docs`
-- [ ] El archivo `.env` está en `.gitignore`
+- [x] El proyecto arranca sin errores con `uv run uvicorn app.main:app --reload`
+- [x] Las API keys se cargan desde `.env` y nunca aparecen en el código
+- [x] El endpoint `GET /health` responde con status 200
+- [x] El endpoint `POST /api/v1/estimate` recibe una transcripción y devuelve una estimación
+- [x] La estimación generada hace referencia o se inspira en los ejemplos de contexto inyectados
+- [x] La documentación Swagger está accesible en `/docs`
+- [x] El archivo `.env` está en `.gitignore`
 
 ## Entregable
 
