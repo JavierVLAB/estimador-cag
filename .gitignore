@@ -1,0 +1,14 @@
+# Secretos: nunca deben llegar al repositorio
+.env
+
+# Entorno virtual y lockfiles locales de uv
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# macOS
+.DS_Store
