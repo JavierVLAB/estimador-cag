@@ -10,14 +10,6 @@ from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Modelo recomendado para cada proveedor. Se usa solo como referencia en la
-# documentación y en los mensajes de error: el modelo efectivo siempre es
-# `settings.llm_model`.
-MODELOS_RECOMENDADOS = {
-    "openai": "gpt-4o-mini",
-    "anthropic": "claude-haiku-4-5",
-}
-
 
 class Settings(BaseSettings):
     """Variables de entorno del servicio, cargadas desde `.env`."""
@@ -38,6 +30,13 @@ class Settings(BaseSettings):
     # distintos modelos del mismo proveedor sin tocar código.
     llm_provider: Literal["openai", "anthropic"] = "openai"
     llm_model: str = "gpt-4o-mini"
+
+    # Límites y comportamiento de la llamada al LLM. Sin un timeout explícito
+    # el SDK usa 600 segundos con varios reintentos, y un proveedor atascado
+    # retendría un worker durante media hora.
+    llm_timeout_seconds: float = 30.0
+    llm_max_retries: int = 2
+    llm_max_output_tokens: int = 2000
 
     app_env: str = "development"
     log_level: str = "DEBUG"

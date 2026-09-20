@@ -67,7 +67,7 @@ def test_fallo_del_proveedor_devuelve_502(
     client, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     def _falla(transcription: str):
-        raise RuntimeError("detalle-interno-que-no-debe-filtrarse")
+        raise llm_service.LLMServiceError("detalle-interno-que-no-debe-filtrarse")
 
     monkeypatch.setattr(llm_service, "generate_estimation", _falla)
 
@@ -77,3 +77,37 @@ def test_fallo_del_proveedor_devuelve_502(
 
     assert respuesta.status_code == 502
     assert "detalle-interno-que-no-debe-filtrarse" not in respuesta.text
+
+
+def test_error_propio_se_reporta_como_500(
+    client, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def _bug(transcription: str):
+        raise KeyError("campo_interno")
+
+    monkeypatch.setattr(llm_service, "generate_estimation", _bug)
+
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    with TestClient(app, raise_server_exceptions=False) as cliente_sin_raise:
+        respuesta = cliente_sin_raise.post(
+            "/api/v1/estimate", json={"transcription": "Una transcripción cualquiera."}
+        )
+
+    assert respuesta.status_code == 500
+    assert "campo_interno" not in respuesta.text
+
+
+def test_transcripcion_demasiado_larga(client, monkeypatch: pytest.MonkeyPatch) -> None:
+    def _no_llamar(transcription: str):
+        raise AssertionError("No se debe llamar al LLM con una entrada inválida")
+
+    monkeypatch.setattr(llm_service, "generate_estimation", _no_llamar)
+
+    respuesta = client.post(
+        "/api/v1/estimate", json={"transcription": "a" * 100_000}
+    )
+
+    assert respuesta.status_code == 422

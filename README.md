@@ -112,6 +112,9 @@ Se definen en `.env` (que nunca se sube al repositorio). La plantilla está en
 | `ANTHROPIC_API_KEY` | API key de Anthropic | — (necesaria si usas Anthropic) |
 | `LLM_PROVIDER` | Proveedor: `openai` o `anthropic` | `openai` |
 | `LLM_MODEL` | Modelo a utilizar | `gpt-4o-mini` |
+| `LLM_TIMEOUT_SECONDS` | Timeout de cada llamada al LLM (el SDK usa 600 s si no se fija) | `30.0` |
+| `LLM_MAX_RETRIES` | Reintentos ante errores transitorios del proveedor | `2` |
+| `LLM_MAX_OUTPUT_TOKENS` | Techo de tokens de salida; si se alcanza, la respuesta se trata como error | `2000` |
 | `APP_ENV` | Entorno de ejecución | `development` |
 | `LOG_LEVEL` | Nivel de logging | `DEBUG` |
 
@@ -169,8 +172,12 @@ El campo `estimation` es texto en markdown, tal como lo genera el modelo.
 
 | Código | Cuándo |
 |---|---|
-| `422` | La transcripción falta o está vacía. No se llama al modelo |
-| `502` | El proveedor LLM falló (credencial incorrecta, modelo inexistente, caída del servicio) |
+| `422` | La transcripción falta, está vacía o supera los `50_000` caracteres. No se llama al modelo |
+| `502` | El proveedor LLM falló o devolvió una respuesta truncada/vacía (credencial incorrecta, modelo inexistente, caída del servicio) |
+| `500` | Un error propio del código (no del proveedor) |
+
+Los errores del proveedor se distinguen de los bugs del servicio: solo los
+primeros responden `502`. Un error interno se reporta como `500`.
 
 ### Swagger
 

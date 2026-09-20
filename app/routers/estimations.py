@@ -10,6 +10,7 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field, field_validator
 
 from app.services import llm_service
+from app.services.llm_service import LLMServiceError
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ class EstimationRequest(BaseModel):
 
     transcription: str = Field(
         min_length=1,
+        max_length=50_000,
         description="Texto de la transcripción de la reunión con el cliente.",
         examples=[
             "En la reunión con el equipo de marketing, el cliente explicó que "
@@ -58,14 +60,16 @@ class EstimationResponse(BaseModel):
 def estimate(peticion: EstimationRequest) -> EstimationResponse:
     try:
         resultado = llm_service.generate_estimation(peticion.transcription)
-    except Exception:
+    except LLMServiceError:
         # El detalle técnico va al log; al cliente solo le llega el motivo,
-        # para no filtrar trazas ni credenciales en la respuesta.
+        # para no filtrar trazas ni credenciales en la respuesta. Un error de
+        # programación propio NO se captura aquí: debe salir como 500 para no
+        # confundirlo con un fallo del proveedor.
         logger.exception("Fallo al generar la estimación con el proveedor LLM")
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="El proveedor LLM no pudo generar la estimación.",
-        )
+        ) from None
 
     return EstimationResponse(
         estimation=resultado.estimation,
