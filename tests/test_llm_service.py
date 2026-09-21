@@ -49,23 +49,31 @@ def _settings(provider: str) -> config.Settings:
 
 
 def _respuesta_openai(
-    *, finish_reason: str = "stop", content: str = "## Estimación: **40 h**"
+    *,
+    finish_reason: str = "stop",
+    content: str = "## Estimación: **40 h**",
+    usage: types.SimpleNamespace | None = None,
 ):
+    usage = usage or types.SimpleNamespace(
+        prompt_tokens=11, completion_tokens=9, total_tokens=20
+    )
     return types.SimpleNamespace(
+        usage=usage,
         choices=[
             types.SimpleNamespace(
                 finish_reason=finish_reason,
                 message=types.SimpleNamespace(content=content),
             )
-        ]
+        ],
     )
 
 
 def _respuesta_anthropic(
-    *, stop_reason: str = "end_turn", bloques: list | None = None
+    *, stop_reason: str = "end_turn", bloques: list | None = None, usage: types.SimpleNamespace | None = None
 ):
     bloques = bloques or [types.SimpleNamespace(type="text", text="## Estimación")]
-    return types.SimpleNamespace(stop_reason=stop_reason, content=bloques)
+    usage = usage or types.SimpleNamespace(input_tokens=9, output_tokens=5)
+    return types.SimpleNamespace(stop_reason=stop_reason, content=bloques, usage=usage)
 
 
 def test_cliente_openai_recibe_timeout_retries_y_max_tokens(

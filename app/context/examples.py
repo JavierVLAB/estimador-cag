@@ -18,6 +18,9 @@ class EstimationExample:
     documentado y un error al escribir un campo se detecte al importar.
     """
 
+    name: str
+    """Nombre corto de la estimación, para mostrarla en listados (p.ej. en la UI)."""
+
     meeting_summary: str
     """Qué pedía el cliente en la reunión original."""
 
@@ -31,6 +34,7 @@ class EstimationExample:
 # formato de la estimación.
 ESTIMATION_EXAMPLES: list[EstimationExample] = [
     EstimationExample(
+        name="Plataforma de gestión de inventario",
         meeting_summary=(
             "El cliente, una distribuidora de material eléctrico con tres almacenes, "
             "necesita una plataforma web de gestión de inventario para sustituir sus "
@@ -67,6 +71,7 @@ ESTIMATION_EXAMPLES: list[EstimationExample] = [
 """,
     ),
     EstimationExample(
+        name="Integración Shopify - Holded",
         meeting_summary=(
             "El cliente ya tiene una tienda online en Shopify funcionando. Quiere "
             "sincronizar automáticamente los pedidos con su sistema de facturación "

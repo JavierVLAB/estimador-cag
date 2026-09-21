@@ -186,6 +186,27 @@ endpoint desde el navegador, sin necesidad de `curl`.
 
 ---
 
+## Interfaz conversacional (Streamlit)
+
+Además del API HTTP, el proyecto incluye una interfaz de chat (`streamlit_app.py`)
+para pegar transcripciones y ver la estimación **token a token**, sin `curl`, 
+Postman ni Swagger:
+
+```bash
+uv run streamlit run streamlit_app.py
+```
+
+La interfaz abre en el navegador (por defecto en `http://localhost:8501`).
+
+Reutiliza el mismo CAG del backend: el mismo system prompt, las mismas
+estimaciones de referencia y la misma configuración (`.env`) que usa
+`POST /api/v1/estimate`. El historial de la conversación es solo visual; cada
+transcripción genera una estimación independiente. En el panel lateral se
+muestran, en solo lectura, el system prompt activo, el contexto CAG y las
+métricas de la última llamada.
+
+---
+
 ## Tests
 
 ```bash

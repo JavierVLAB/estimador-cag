@@ -11,6 +11,7 @@ dependencies = [
     "python-dotenv>=1.0",
     "openai>=1.55",
     "anthropic>=0.40",
+    "streamlit>=1.36",
 ]
 
 [dependency-groups]

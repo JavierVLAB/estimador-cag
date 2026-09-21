@@ -16,6 +16,11 @@ def sin_llm(monkeypatch: pytest.MonkeyPatch) -> None:
             estimation=ESTIMACION_FALSA,
             model="gpt-4o-mini",
             provider="openai",
+            usage=llm_service.TokenUsage(
+                input_tokens=22,
+                output_tokens=18,
+                total_tokens=40,
+            ),
         )
 
     monkeypatch.setattr(llm_service, "generate_estimation", _fake)
@@ -39,6 +44,11 @@ def test_estimacion_correcta(client, sin_llm) -> None:
     assert cuerpo["estimation"] == ESTIMACION_FALSA
     assert cuerpo["model"] == "gpt-4o-mini"
     assert cuerpo["provider"] == "openai"
+    assert cuerpo["usage"] == {
+        "input_tokens": 22,
+        "output_tokens": 18,
+        "total_tokens": 40,
+    }
 
 
 def test_transcripcion_ausente(client, monkeypatch: pytest.MonkeyPatch) -> None:

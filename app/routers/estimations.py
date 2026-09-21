@@ -5,6 +5,7 @@ servicio y traduce el resultado (o el fallo) a una respuesta.
 """
 
 import logging
+from typing import Literal
 
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field, field_validator
@@ -40,12 +41,21 @@ class EstimationRequest(BaseModel):
         return valor
 
 
+class TokenUsage(BaseModel):
+    """Metadatos de consumo de tokens de la llamada al LLM."""
+
+    input_tokens: int = Field(ge=0, description="Tokens de entrada consumidos.")
+    output_tokens: int = Field(ge=0, description="Tokens de salida generados.")
+    total_tokens: int = Field(ge=0, description="Tokens totales de la llamada.")
+
+
 class EstimationResponse(BaseModel):
     """Estimación generada."""
 
     estimation: str = Field(description="La estimación generada, en formato markdown.")
     model: str = Field(description="Modelo utilizado para generarla.")
     provider: str = Field(description="Proveedor utilizado: 'openai' o 'anthropic'.")
+    usage: TokenUsage = Field(description="Consumo de tokens de la llamada al LLM.")
 
 
 @router.post(
@@ -75,4 +85,9 @@ def estimate(peticion: EstimationRequest) -> EstimationResponse:
         estimation=resultado.estimation,
         model=resultado.model,
         provider=resultado.provider,
+        usage=TokenUsage(
+            input_tokens=resultado.usage.input_tokens,
+            output_tokens=resultado.usage.output_tokens,
+            total_tokens=resultado.usage.total_tokens,
+        ),
     )

@@ -1,0 +1,24 @@
+Transcripción 1 - proyecto web (tipología: desarrollo desde cero)
+
+En la reunión con el cliente (una agencia de diseño con 10 empleados) hemos
+acordado construir una web corporativa con catálogo de servicios. Piden: sitio
+público de 6 páginas, área de clientes con login para subir y revisar
+proyectos, blog con editor WYSIWYG, y un presupuestador online que calcule el
+precio de sus servicios según nº de páginas y complejidad. Usan WordPress
+actualmente y quieren migrar el contenido. No tienen diseño final, solo
+referencias. Quieren una primera versión en 3 meses. También pidieron que la
+web esté en español e inglés (i18n). No hay integración con redes sociales ni
+pasarela de pago.
+
+---
+
+Transcripción 2 - reservas clínica dental (tipología: integración acotada)
+
+El cliente es una clínica dental con 3 sedes. Ya tiene una web en WordPress y
+quiere que el sistema de reservas de citas (ahora por teléfono) pase a estar
+en línea: cada sede con su propia agenda, el paciente elige profesional, día y
+hora, y recibe recordatorio por SMS. Piden integración con Google Calendar del
+equipo y un panel interno para la recepcionista donde ver y modificar citas. El
+diseño de la web actual no cambia: solo añadir el módulo de reservas. Volumen:
+unas 40 citas al día estimadas. Quieren tenerlo antes de verano y funcionando
+primero en una sede como prueba.
