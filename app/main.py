@@ -10,7 +10,7 @@ from app.routers import estimations
 logging.basicConfig(level=settings.log_level.upper())
 
 app = FastAPI(
-    title="Estimador CAG",
+    title="Estimador de Presupuestos",
     version="1.0.0",
     description=(
         "Genera estimaciones de software a partir de la transcripción de una "
