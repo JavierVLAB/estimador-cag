@@ -19,3 +19,6 @@ __pycache__/
 .streamlit/
 .claude/
 .git/
+
+# Artefactos locales de planificación; no forman parte de la entrega.
+openspec/changes/modulo-04-formulario-prompts/
