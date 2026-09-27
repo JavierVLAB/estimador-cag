@@ -112,6 +112,7 @@ Se definen en `.env` (que nunca se sube al repositorio). La plantilla está en
 | `ANTHROPIC_API_KEY` | API key de Anthropic | — (necesaria si usas Anthropic) |
 | `LLM_PROVIDER` | Proveedor: `openai` o `anthropic` | `openai` |
 | `LLM_MODEL` | Modelo a utilizar | `gpt-4o-mini` |
+| `LLM_PROMPT_VERSION` | Versión de instrucciones del backend: `v1` o `v2` | `v1` |
 | `LLM_TIMEOUT_SECONDS` | Timeout de cada llamada al LLM (el SDK usa 600 s si no se fija) | `30.0` |
 | `LLM_MAX_RETRIES` | Reintentos ante errores transitorios del proveedor | `2` |
 | `LLM_MAX_OUTPUT_TOKENS` | Techo de tokens de salida; si se alcanza, la respuesta se trata como error | `2000` |
@@ -143,7 +144,7 @@ llamada fallará y el servicio responderá `502`.
 | Método | Ruta | Qué hace |
 |---|---|---|
 | `GET` | `/health` | Comprueba que el servicio responde |
-| `POST` | `/api/v1/estimate` | Genera una estimación a partir de una transcripción |
+| `POST` | `/api/v1/estimate` | Genera una estimación a partir de un formulario guiado |
 | `GET` | `/docs` | Documentación interactiva (Swagger UI) |
 
 ### Ejemplo
@@ -152,7 +153,10 @@ llamada fallará y el servicio responderá `502`.
 curl -X POST http://localhost:8000/api/v1/estimate \
   -H "Content-Type: application/json" \
   -d '{
-    "transcription": "En la reunión con el equipo de marketing, el cliente explicó que necesita una landing page con formulario de contacto, integración con su CRM actual (HubSpot), y una sección de blog con editor WYSIWYG. El plazo ideal sería tenerlo listo en 4 semanas. El diseño ya existe en Figma."
+    "description": "Aplicación web para gestionar las reservas de un centro deportivo, con pagos, calendario para clientes y un área interna para el personal.",
+    "project_type": "web_saas",
+    "detail_level": "medium",
+    "output_format": "phases_table"
   }'
 ```
 
@@ -160,19 +164,22 @@ Respuesta:
 
 ```json
 {
-  "estimation": "## Estimación: Landing page con integración HubSpot\n\n### Desglose de tareas\n...",
+  "text": "## Estimación\n\n| Fase | Horas | ...",
+  "prompt_version": "v1",
   "model": "gpt-4o-mini",
-  "provider": "openai"
+  "provider": "openai",
+  "usage": {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}
 }
 ```
 
-El campo `estimation` es texto en markdown, tal como lo genera el modelo.
+El campo `text` es texto en Markdown, tal como lo genera el modelo. La versión
+`v1` identifica las plantillas que construyeron las instrucciones de esa llamada.
 
 ### Errores
 
 | Código | Cuándo |
 |---|---|
-| `422` | La transcripción falta, está vacía o supera los `50_000` caracteres. No se llama al modelo |
+| `422` | Falta un campo del formulario, una opción no es válida o la descripción tiene menos de 20 o más de 2.000 caracteres. No se llama al modelo |
 | `502` | El proveedor LLM falló o devolvió una respuesta truncada/vacía (credencial incorrecta, modelo inexistente, caída del servicio) |
 | `500` | Un error propio del código (no del proveedor) |
 
@@ -186,24 +193,40 @@ endpoint desde el navegador, sin necesidad de `curl`.
 
 ---
 
-## Interfaz conversacional (Streamlit)
+## Formulario de estimación (Streamlit)
 
-Además del API HTTP, el proyecto incluye una interfaz de chat (`streamlit_app.py`)
-para pegar transcripciones y ver la estimación **token a token**, sin `curl`, 
-Postman ni Swagger:
+Además del API HTTP, el proyecto incluye un formulario (`streamlit_app.py`) para
+describir un proyecto, seleccionar su tipo, el nivel de detalle y el formato de
+la estimación. El formulario envía esos datos al endpoint `POST /api/v1/estimate`
+y muestra el resultado completo, sin `curl`, Postman ni Swagger.
+
+Primero arranca el backend:
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+En otra terminal, arranca la interfaz:
 
 ```bash
 uv run streamlit run streamlit_app.py
 ```
 
-La interfaz abre en el navegador (por defecto en `http://localhost:8501`).
+La interfaz abre en el navegador (por defecto en `http://localhost:8501`) y se
+conecta por defecto a `http://localhost:8000`. Si el backend está en otra
+dirección, define `ESTIMATOR_API_BASE_URL` antes de arrancar Streamlit.
 
-Reutiliza el mismo CAG del backend: el mismo system prompt, las mismas
-estimaciones de referencia y la misma configuración (`.env`) que usa
-`POST /api/v1/estimate`. El historial de la conversación es solo visual; cada
-transcripción genera una estimación independiente. En el panel lateral se
-muestran, en solo lectura, el system prompt activo, el contexto CAG y las
-métricas de la última llamada.
+El backend reutiliza las mismas plantillas versionadas para generar la respuesta.
+Las instrucciones están en `app/prompts/estimation/`, separadas por versiones:
+`v1` conserva la primera versión y `v2` añade referencias de proyectos más
+diversas. El backend selecciona la versión con `LLM_PROMPT_VERSION`; el
+formulario no la elige ni llama directamente a OpenAI o Anthropic. En el panel
+lateral se muestran, en solo lectura, el prompt activo y las métricas de la
+última llamada.
+
+Cada estimación deja un registro seguro con la versión, proveedor, modelo,
+huella SHA-256 y tamaños de los mensajes. El registro no incluye la descripción
+de la persona usuaria ni el contenido de las instrucciones.
 
 ---
 
@@ -214,24 +237,24 @@ uv run pytest
 ```
 
 Los tests sustituyen la llamada al LLM por una respuesta fija: **no hacen
-peticiones reales** y no necesitan API keys válidas. Cubren el health check, una
-estimación correcta, las entradas inválidas, el fallo del proveedor y que los
-ejemplos de contexto acaban realmente dentro del prompt.
+peticiones reales** y no necesitan API keys válidas. Cubren el formulario HTTP,
+las opciones inválidas, el fallo del proveedor, el streaming y el render de las
+plantillas según el formato y nivel de detalle elegidos.
 
 ---
 
 ## Mejorar las estimaciones
 
-La calidad del resultado depende de dos cosas, ambas en el código:
+La calidad del resultado depende de dos cosas, ambas versionadas como plantillas:
 
-1. **Los ejemplos** de `app/context/examples.py`. Son la referencia de formato y
+1. **Los ejemplos** de `app/prompts/estimation/<versión>/examples.j2`. Son la referencia de formato y
    de criterio de esfuerzo. Cuanto más se parezcan al tipo de estimaciones que
    quieres obtener, mejor será el resultado.
-2. **Las instrucciones** (`INSTRUCCIONES`) de `app/services/llm_service.py`, que
+2. **Las instrucciones** (`system.j2`) de `app/prompts/estimation/<versión>/`, que
    definen el rol del modelo y las reglas que debe seguir.
 
 Para comprobar cómo queda el prompt sin gastar una llamada:
 
 ```bash
-uv run python -c "from app.services.llm_service import build_system_prompt; print(build_system_prompt())"
+uv run python -c "from app.prompts.loader import render_estimation_prompt; from app.schemas.estimation import EstimationRequest, ProjectType, DetailLevel, OutputFormat; r = EstimationRequest(description='Aplicación web para organizar reservas y pagos de un centro deportivo.', project_type=ProjectType.WEB_SAAS, detail_level=DetailLevel.MEDIUM, output_format=OutputFormat.PHASES_TABLE); print(render_estimation_prompt(r)[0])"
 ```

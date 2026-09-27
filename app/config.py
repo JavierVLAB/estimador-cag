@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     # distintos modelos del mismo proveedor sin tocar código.
     llm_provider: Literal["openai", "anthropic"] = "openai"
     llm_model: str = "gpt-4o-mini"
+    # La versión se decide en el backend. El cliente HTTP nunca puede escoger
+    # las instrucciones que se mandan al proveedor.
+    llm_prompt_version: Literal["v1", "v2"] = "v1"
 
     # Límites y comportamiento de la llamada al LLM. Sin un timeout explícito
     # el SDK usa 600 segundos con varios reintentos, y un proveedor atascado
@@ -37,6 +40,11 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = 30.0
     llm_max_retries: int = 2
     llm_max_output_tokens: int = 2000
+
+    # Dirección del API al que se conecta la interfaz Streamlit. Se conserva
+    # separada de la configuración del proveedor: la interfaz nunca llama al
+    # proveedor LLM directamente.
+    estimator_api_base_url: str = "http://localhost:8000"
 
     app_env: str = "development"
     log_level: str = "DEBUG"
