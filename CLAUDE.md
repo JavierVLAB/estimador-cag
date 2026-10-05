@@ -29,6 +29,16 @@ A partir de la sesión 05 el servicio sí tiene estado en memoria del proceso: e
 
 Una caché de respuestas sigue sin existir. Si algún día hace falta, es una pieza nueva que se justifica por coste, no una tarea pendiente.
 
+Consecuencia que conviene no olvidar al trabajar: `uvicorn --reload` recarga en cada cambio de archivo, así que cada guardado borra las conversaciones abiertas. Los tests no lo notan porque sustituyen el proveedor, no el store.
+
+### Coste de la extracción de metadata
+
+Extraer el `project_metadata` es una segunda llamada al proveedor por turno. Está asumido como coste consciente, no como descuido: la alternativa barata, un `regex` sobre la respuesta, obligaría a meter un bloque de campos dentro de la estimación que se entrega.
+
+Degradación acordada: si el extractor falla, la estimación se entrega igual con la metadata anterior. No subir esa degradación a error.
+
+La versión de plantilla de los turnos de sesión está fijada en `v3` (`SESSION_PROMPT_VERSION` en `app/prompts/loader.py`) y no se configura por entorno. `LLM_PROMPT_VERSION` sigue gobernando solo el endpoint sin estado. No unificarlas sin hablarlo: `v1` y `v2` no reciben metadata y renderizarían con variables sin definir.
+
 ## Estructura
 
 La estructura base la fija el enunciado y no se modifica sin discutirlo:

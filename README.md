@@ -30,10 +30,57 @@ sobra en la ventana de contexto del modelo. Añadir una base de datos y un
 buscador no mejoraría el resultado y sí añadiría piezas que mantener. Por eso el
 proyecto **no tiene** base de datos, recuperación ni almacén vectorial.
 
-El servicio es, por tanto, **sin estado**: cada petición se estima desde cero y
-el proceso no guarda nada entre llamadas. Una caché de respuestas es la primera
-pieza que tendría que aparecer si el tráfico creciera lo suficiente como para
-que el coste por llamada dejara de ser irrelevante.
+El servicio mantiene **memoria de sesión**: el historial de cada conversación y
+el `project_metadata` que el modelo extrae de ella viven en un diccionario del
+proceso. Eso no cambia el CAG: el conocimiento de referencia sigue viajando
+completo en el prompt, lo que se conserva entre turnos es la conversación, que es
+otra cosa.
+
+Las consecuencias son operativas y conviene tenerlas presentes:
+
+* Al reiniciar el servidor se pierde todo. `uvicorn --reload` recarga en cada
+  cambio de archivo, así que **cada guardado en `streamlit_app.py` o en `app/`
+  borra las conversaciones abiertas**.
+* Con varios workers cada uno tiene su propio diccionario, así que dos peticiones
+  que caigan en workers distintos pueden no ver la misma sesión.
+* No hay una caché de respuestas. Si el tráfico creciera lo suficiente como para
+  que el coste por llamada dejara de ser irrelevante, sería la primera pieza que
+  tendría que aparecer.
+
+### Memoria conversacional y adjuntos
+
+El endpoint `POST /api/v1/sessions/{id}/estimate` añade un turno a una
+conversación abierta. Cada turno hace cuatro cosas:
+
+1. **Extrae el texto de los adjuntos** en el servidor. El binario no se sube al
+   proveedor. La alternativa de subirlo exigiría duplicar el camino para OpenAI y
+   Anthropic, cuyo formato de archivo es distinto, y dejaría el texto sin
+   normalizar para el futuro módulo de RAG. Se pierde el layout visual.
+2. **Renderiza el system prompt** con el `project_metadata` vigente. No se guarda
+   en el historial: se vuelve a construir en cada llamada, porque cambia cuando la
+   metadata cambia.
+3. **Genera la estimación** con el historial de turnos anteriores, en una ventana
+   deslizante de `SESSION_MAX_TURNS` pares.
+4. **Extrae el `project_metadata`** con una segunda llamada al LLM y lo fusiona
+   con el anterior.
+
+Sobre el paso 4, la decisión tiene un precio: **duplica la latencia de cada turno**
+y añade una segunda factura de entrada por turno. La alternativa
+barata, un `regex` sobre la respuesta, obligaría a intercalar un bloque de campos
+dentro de la estimación que la persona usuaria lee, y esa estimación es
+justamente lo que el servicio tiene que entregar limpio. Aquí el bloque de datos
+viaja aparte.
+
+Si el extractor falla o devuelve algo que no es JSON interpretable, la
+**estimación se entrega igual** con la metadata anterior. Perder un dato de
+contexto no justifica perder la respuesta que se pidió.
+
+Los adjuntos tienen dos topes, porque atacan riesgos distintos: `MAX_ATTACHMENT_BYTES`
+se comprueba antes de procesar el archivo y protege el proceso;
+`MAX_ATTACHMENT_CHARS` acota lo que llega al contexto. `MAX_ATTACHMENTS_PER_REQUEST`
+acota el caso de muchos documentos pequeños que en conjunto desbordan. El texto de
+cada adjunto viaja en el prompt entre vallas que llevan su nombre, para que el
+modelo distinga la documentación de lo que se dijo en la reunión.
 
 ### El flujo, paso a paso
 
@@ -74,8 +121,13 @@ Los mensajes que recibe el modelo siguen este patrón:
 | Archivo | Responsabilidad |
 |---|---|
 | `app/main.py` | Aplicación FastAPI, health check y montaje del router |
-| `app/routers/estimations.py` | Endpoint HTTP: validación de entrada y formato de salida |
+| `app/routers/estimations.py` | Endpoint HTTP sin sesión: validación de entrada y formato de salida |
+| `app/routers/sessions.py` | Endpoints de sesión y encadenado del turno |
 | `app/services/llm_service.py` | Construcción del prompt y llamada al proveedor LLM |
+| `app/services/sessions.py` | Historial con ventana deslizante y diccionario de sesiones |
+| `app/services/attachments.py` | Extracción de texto de PDF y Word, y su fusión con la transcripción |
+| `app/services/metadata.py` | Extracción y fusión del `project_metadata` |
+| `app/prompts/loader.py` | Render de las plantillas versionadas |
 | `app/context/examples.py` | Las estimaciones de referencia (el contexto CAG) |
 | `app/config.py` | Configuración; único punto que lee variables de entorno |
 
@@ -83,6 +135,11 @@ Las dependencias van en una sola dirección: `routers → services → context`.
 servicio no sabe que existe FastAPI, y el contexto es solo datos. Así, el día
 que se sustituya el contexto estático por recuperación, solo cambian esas dos
 capas.
+
+Dos detalles de esa frontera que conviene no perder: `llm_service` no sabe nada
+de sesiones, por eso recibe el system prompt ya construido en lugar de
+renderizarlo; y el `SessionStore` vive en el router porque es estado del proceso
+que pertenece a la capa HTTP, no al servicio que define la forma de `Session`.
 
 ---
 
@@ -116,7 +173,11 @@ Se definen en `.env` (que nunca se sube al repositorio). La plantilla está en
 | `ANTHROPIC_API_KEY` | API key de Anthropic | — (necesaria si usas Anthropic) |
 | `LLM_PROVIDER` | Proveedor: `openai` o `anthropic` | `openai` |
 | `LLM_MODEL` | Modelo a utilizar | `gpt-4o-mini` |
-| `LLM_PROMPT_VERSION` | Versión de instrucciones del backend: `v1` o `v2` | `v1` |
+| `LLM_PROMPT_VERSION` | Versión de instrucciones del endpoint sin estado: `v1`, `v2` o `v3` | `v1` |
+| `SESSION_MAX_TURNS` | Pares usuario/asistente que retiene cada sesión | `6` |
+| `MAX_ATTACHMENT_BYTES` | Tope por archivo, comprobado antes de procesarlo | `10000000` |
+| `MAX_ATTACHMENT_CHARS` | Tope del texto extraído de un adjunto que llega al prompt | `20000` |
+| `MAX_ATTACHMENTS_PER_REQUEST` | Número máximo de adjuntos por turno | `5` |
 | `LLM_TIMEOUT_SECONDS` | Timeout de cada llamada al LLM (el SDK usa 600 s si no se fija) | `30.0` |
 | `LLM_MAX_RETRIES` | Reintentos ante errores transitorios del proveedor | `2` |
 | `LLM_MAX_OUTPUT_TOKENS` | Techo de tokens de salida; si se alcanza, la respuesta se trata como error | `2000` |
@@ -149,7 +210,13 @@ llamada fallará y el servicio responderá `502`.
 |---|---|---|
 | `GET` | `/health` | Comprueba que el servicio responde |
 | `POST` | `/api/v1/estimate` | Genera una estimación a partir de un formulario guiado |
+| `POST` | `/api/v1/sessions` | Abre una conversación y devuelve su identificador |
+| `GET` | `/api/v1/sessions/{id}` | Consulta el `project_metadata` y los turnos retenidos |
+| `POST` | `/api/v1/sessions/{id}/estimate` | Añade un turno a la conversación, con adjuntos opcionales |
 | `GET` | `/docs` | Documentación interactiva (Swagger UI) |
+
+Los tres endpoints de sesión no llaman a base de datos: el estado vive en un
+diccionario del proceso y se pierde al reiniciar el servidor.
 
 ### Ejemplo
 
@@ -199,10 +266,19 @@ endpoint desde el navegador, sin necesidad de `curl`.
 
 ## Formulario de estimación (Streamlit)
 
-Además del API HTTP, el proyecto incluye un formulario (`streamlit_app.py`) para
+Además del API HTTP, el proyecto incluye una interfaz (`streamlit_app.py`) para
 describir un proyecto, seleccionar su tipo, el nivel de detalle y el formato de
-la estimación. El formulario envía esos datos al endpoint `POST /api/v1/estimate`
-y muestra el resultado completo, sin `curl`, Postman ni Swagger.
+la estimación, y adjuntar documentación. Cada envío es **un turno más de la misma
+conversación**: la interfaz abre una sesión al cargar y envía a
+`POST /api/v1/sessions/{id}/estimate`.
+
+El panel lateral muestra el `project_metadata` que el modelo ha ido extrayendo y
+cuántos turnos se conservan. Cuando todavía no hay datos se dice explícitamente,
+porque es un estado normal del primer turno y no un fallo.
+
+Si el backend responde `404` porque la sesión ya no existe (habría que reiniciar
+el servidor), la interfaz abre una sesión nueva y reintenta el turno una vez: la
+transcripción que la persona había escrito no se pierde por un reinicio.
 
 Primero arranca el backend:
 
@@ -220,13 +296,16 @@ La interfaz abre en el navegador (por defecto en `http://localhost:8501`) y se
 conecta por defecto a `http://localhost:8000`. Si el backend está en otra
 dirección, define `ESTIMATOR_API_BASE_URL` antes de arrancar Streamlit.
 
-El backend reutiliza las mismas plantillas versionadas para generar la respuesta.
-Las instrucciones están en `app/prompts/estimation/`, separadas por versiones:
-`v1` conserva la primera versión y `v2` añade referencias de proyectos más
-diversas. El backend selecciona la versión con `LLM_PROMPT_VERSION`; el
-formulario no la elige ni llama directamente a OpenAI o Anthropic. En el panel
-lateral se muestran, en solo lectura, el prompt activo y las métricas de la
-última llamada.
+Las instrucciones están en `app/prompts/`, separadas por versiones. El endpoint
+sin estado selecciona su versión con `LLM_PROMPT_VERSION`; los turnos de sesión
+usan siempre `v3`, que es la única que recibe el `project_metadata` y las reglas
+de continuidad. No es configurable a propósito: sin ese bloque, un turno sería una
+estimación aislada sin el contexto que el enunciado pide. Las instrucciones del
+extractor de metadata están en `app/prompts/metadata_extraction/`.
+
+El formulario no elige versión de prompt ni llama directamente a OpenAI o
+Anthropic. En el panel lateral se muestran, en solo lectura, el prompt que se
+envía y las métricas de la última llamada.
 
 Cada estimación deja un registro seguro con la versión, proveedor, modelo,
 huella SHA-256 y tamaños de los mensajes. El registro no incluye la descripción
