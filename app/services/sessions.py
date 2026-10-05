@@ -100,10 +100,17 @@ class Session:
 class SessionStore:
     """Diccionario de sesiones con un lock.
 
-    Los handlers son `def`, así que Starlette los ejecuta en el threadpool: dos
-    peticiones simultáneas sobre la misma sesión podrían intercalar un `append`
-    y un recorte. El lock es la pieza más barata de toda la memoria
-    conversacional y evita un fallo intermitente difícil de reproducir.
+    Los handlers son `def`, así que Starlette los ejecuta en el threadpool y dos
+    peticiones pueden buscar sesiones a la vez. El lock protege el diccionario:
+    sin él, un `create` y un `get` simultáneos sobre el mismo dict pierden
+    consistencia en CPython.
+
+    Lo que el lock NO protege es la mutación de una sesión ya resuelta. El
+    `append` y el recorte de `record_turn` ocurren en el router, fuera de aquí.
+    Hoy eso no rompe nada porque son dos operaciones sobre una lista y el GIL no
+    las entrelaza, pero es una propriété accidental, no una garantía: si el
+    historial llegara a crecer un resumen acumulado, o el recorte se volviera
+    más complejo, haría falta un lock por sesión y no uno global.
     """
 
     def __init__(self, max_turns: int | None = None) -> None:
