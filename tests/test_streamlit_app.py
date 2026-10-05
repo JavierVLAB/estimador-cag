@@ -80,7 +80,7 @@ def cliente(monkeypatch: pytest.MonkeyPatch) -> ClienteFalso:
 
 
 def _enviar(app: AppTest, descripcion: str = DESCRIPCION_VALIDA) -> AppTest:
-    app.text_area(key="estimation_description").set_value(descripcion)
+    app.text_area[0].set_value(descripcion)
     return app.button[0].click().run()
 
 
@@ -123,6 +123,31 @@ def test_el_turno_se_envia_al_endpoint_de_sesion(cliente) -> None:
         "detail_level": "summary",
         "output_format": "phases_table",
     }
+
+
+def test_la_caja_de_texto_se_vacia_tras_enviar(cliente) -> None:
+    """Sin esto, el texto se queda e invita a reenviar el mismo turno."""
+    app = AppTest.from_file(APP_PATH).run()
+    app = _enviar(app)
+
+    assert app.text_area[0].value == ""
+
+
+def test_los_adjuntos_no_se_arrastran_al_siguiente_turno(cliente) -> None:
+    app = AppTest.from_file(APP_PATH).run()
+    app.file_uploader[0].upload("notas.pdf", b"%PDF-1.4\nfake\n", "application/pdf")
+    app = _enviar(app)
+
+    assert app.file_uploader[0].value == []
+
+
+def test_los_selectores_se_recuerdan_entre_turnos(cliente) -> None:
+    """Contrapartida: limpiar el texto no debe borrar lo que sí conviene mantener."""
+    app = AppTest.from_file(APP_PATH).run()
+    app.selectbox(key="estimation_output_format").select("narrative")
+    app = _enviar(app)
+
+    assert app.selectbox(key="estimation_output_format").value == "narrative"
 
 
 def test_la_estimacion_se_muestra(cliente) -> None:
@@ -242,7 +267,7 @@ def test_una_descripcion_insuficiente_no_llega_al_api(cliente) -> None:
 
     cliente.llamadas.clear()
     app = AppTest.from_file(APP_PATH).run()
-    app.text_area(key="estimation_description").set_value("app pequeña")
+    app.text_area[0].set_value("app pequeña")
     app.button[0].click().run()
 
     assert not app.exception
@@ -258,7 +283,7 @@ def test_un_fallo_http_se_muestra_como_error_de_conexion(monkeypatch) -> None:
 
     monkeypatch.setattr(httpx, "post", post_falso)
     app = AppTest.from_file(APP_PATH).run()
-    app.text_area(key="estimation_description").set_value(DESCRIPCION_VALIDA)
+    app.text_area[0].set_value(DESCRIPCION_VALIDA)
     app.button[0].click().run()
 
     assert not app.exception
@@ -279,7 +304,7 @@ def test_un_fallo_de_proveedor_no_expone_el_detalle_interno(monkeypatch) -> None
 
     monkeypatch.setattr(httpx, "post", post_falso)
     app = AppTest.from_file(APP_PATH).run()
-    app.text_area(key="estimation_description").set_value(DESCRIPCION_VALIDA)
+    app.text_area[0].set_value(DESCRIPCION_VALIDA)
     app.button[0].click().run()
 
     assert not app.exception

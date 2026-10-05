@@ -218,6 +218,7 @@ st.session_state.setdefault("turns_kept", 0)
 st.session_state.setdefault("last_metrics", None)
 st.session_state.setdefault("last_estimation", None)
 st.session_state.setdefault("session_error", None)
+st.session_state.setdefault("form_generation", 0)
 
 # La sesión se abre al cargar, no al enviar: así el backend puede rejectar un id
 # desconocido desde el primer turno.
@@ -314,7 +315,9 @@ with st.form("estimation_request", border=True):
         placeholder="Explica el objetivo, las funciones principales y cualquier restricción conocida.",
         height=180,
         max_chars=2_000,
-        key="estimation_description",
+        # El sufijo fuerza un widget nuevo tras cada envío: sin él Streamlit
+        # conserva el texto porque el `key` sigue registrado en session_state.
+        key=f"estimation_description_{st.session_state.form_generation}",
     )
     project_type = st.selectbox(
         "Tipo de proyecto",
@@ -338,7 +341,7 @@ with st.form("estimation_request", border=True):
         "Documentación adjunta (opcional)",
         type=EXTENSIONES_ADMITIDAS,
         accept_multiple_files=True,
-        key="estimation_attachments",
+        key=f"estimation_attachments_{st.session_state.form_generation}",
     )
     submitted = st.form_submit_button(
         "Generar estimación",
@@ -397,6 +400,9 @@ if submitted:
                 tiempo = time.perf_counter() - inicio
 
         if exito:
+            # Descarta el texto y los adjuntos enviados: el turno ya está en el
+            # historial del backend y dejarlos invites a reenviarlo por error.
+            st.session_state.form_generation += 1
             st.session_state.session_id = session_id_usada
             st.session_state.session_metadata = turno.metadata
             st.session_state.turns_kept = turno.turns_kept
