@@ -11,6 +11,15 @@ from app.schemas.session import ProjectMetadata
 
 PROMPT_VERSION = "v1"
 METADATA_EXTRACTION_VERSION = "v1"
+
+# La versión que usan los turnos de sesión. No se configurable a propósito: v3 es
+# la única que recibe el project_metadata y las reglas de continuidad, que es
+# parte del contrato de la memoria conversacional. Fijarla aquí evita que un
+# `LLM_PROMPT_VERSION=v2` convierta el turno en una estimación sin contexto y con
+# variables sin definir. `LLM_PROMPT_VERSION` sigue gobernando el endpoint sin
+# estado.
+SESSION_PROMPT_VERSION = "v3"
+
 _PROMPTS_DIR = Path(__file__).resolve().parent
 
 _environment = Environment(

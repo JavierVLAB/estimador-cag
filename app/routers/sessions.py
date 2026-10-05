@@ -11,7 +11,7 @@ import logging
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
 from app import config
-from app.prompts.loader import render_session_prompt
+from app.prompts.loader import SESSION_PROMPT_VERSION, render_session_prompt
 from app.schemas.estimation import DetailLevel, OutputFormat, ProjectType, TokenUsage
 from app.schemas.session import (
     CreateSessionResponse,
@@ -26,15 +26,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/sessions", tags=["sesiones"])
 
 _store = sessions.SessionStore()
-
-# La versión de plantilla no se configura para este endpoint: v3 es la única que
-# recibe el project_metadata y las reglas de continuidad, que es parte del
-# contrato de la memoria conversacional. Fijarla aquí evita que un
-# `LLM_PROMPT_VERSION=v2` en el entorno convierta el turno en una estimación sin
-# contexto ni con variables sin definir. `LLM_PROMPT_VERSION` sigue gobernando
-# el endpoint sin estado.
-SESSION_PROMPT_VERSION = "v3"
-
 
 def _error_adjunto(exc: attachments.AttachmentExtractionError) -> HTTPException:
     """Traduce un fallo de adjunto al código que le corresponde.
