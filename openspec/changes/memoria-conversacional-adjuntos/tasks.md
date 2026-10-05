@@ -25,7 +25,7 @@
 - [x] 4.1 Crear `app/prompts/estimation/v3/` con `system.j2` y `user.j2`, incluyendo el bloque `<project_metadata>` delimitado y presente también cuando la metadata esté vacía.
 - [x] 4.2 Crear `app/prompts/metadata_extraction/v1/` con `system.j2` y `user.j2` que indiquen devolver `null` ante la duda, no inventar hechos y normalizar la capitalización de las tecnologías.
 - [x] 4.3 Añadir al cargador la segunda función de render y las variables de contexto necesarias; permitir `v3` en el `Literal` de `llm_prompt_version`.
-- [ ] 4.4 Tests de render: bloque de metadata con hechos y con metadata vacía, y que las plantillas del extractor no se confundan con las de estimación.
+- [x] 4.4 Tests de render: bloque de metadata con hechos y con metadata vacía, y que las plantillas del extractor no se confundan con las de estimación.
 
 ## 5. Servicio de generación y extracción de metadata
 
