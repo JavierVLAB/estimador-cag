@@ -46,7 +46,7 @@ def test_el_render_devuelve_sistema_y_usuario_separados() -> None:
 # --- v3, con metadata --------------------------------------------------------
 
 
-def test_la_metadata_conocida_aparece_en_el_turno_de_usuario() -> None:
+def test_la_metadata_conocida_aparece_en_el_system_prompt() -> None:
     metadata = ProjectMetadata(
         project_name="Portal de reservas",
         assumed_team_size=4,
@@ -54,41 +54,41 @@ def test_la_metadata_conocida_aparece_en_el_turno_de_usuario() -> None:
         agreed_scope="Solo el motor de disponibilidad",
     )
 
-    _, user = render_session_prompt(
+    system, _ = render_session_prompt(
         transcript="Hablamos del portal.", metadata=metadata, version="v3", **BASE
     )
 
-    assert "Portal de reservas" in user
-    assert "4 personas" in user
-    assert "React, Postgres" in user
-    assert "Solo el motor de disponibilidad" in user
+    assert "Portal de reservas" in system
+    assert "4 personas" in system
+    assert "React, Postgres" in system
+    assert "Solo el motor de disponibilidad" in system
 
 
 def test_sin_metadata_el_bloque_dice_explicitamente_que_no_hay_datos() -> None:
     """El primer turno también lleva el bloque, para que el formato sea estable."""
-    _, user = render_session_prompt(
+    system, _ = render_session_prompt(
         transcript="Primera reunion.",
         metadata=ProjectMetadata(),
         version="v3",
         **BASE,
     )
 
-    assert "<project_metadata>" in user
-    assert "Todavía no se ha establecido ningún dato" in user
-    assert "4 personas" not in user
+    assert "<project_metadata>" in system
+    assert "Todavía no se ha establecido ningún dato" in system
+    assert "4 personas" not in system
 
 
 def test_la_metadata_parcial_no_inventa_los_campos_ausentes() -> None:
-    _, user = render_session_prompt(
+    system, _ = render_session_prompt(
         transcript="Segunda reunion.",
         metadata=ProjectMetadata(project_name="Portal"),
         version="v3",
         **BASE,
     )
 
-    assert "Portal" in user
-    assert "Tamaño de equipo" not in user
-    assert "Tecnologías" not in user
+    assert "Portal" in system
+    assert "Tamaño de equipo" not in system
+    assert "Tecnologías" not in system
 
 
 def test_la_transcripcion_del_turno_se_inyecta() -> None:

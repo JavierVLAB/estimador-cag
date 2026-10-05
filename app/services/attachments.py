@@ -91,7 +91,8 @@ def extract_text(*, filename: str, content: bytes, max_bytes: int, max_chars: in
     if ext not in _EXTS:
         raise UnsupportedAttachmentError(
             filename,
-            f"Extensión {ext!r} no soportada; admitidas: {sorted(_EXTS)}.",
+            f"No se admite {filename}: extensión {ext!r} no soportada; "
+            f"admitidas: {sorted(_EXTS)}.",
         )
 
     if len(content) > max_bytes:

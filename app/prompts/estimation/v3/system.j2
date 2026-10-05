@@ -30,6 +30,26 @@ precede a tu turno actual.
   conversación.
 </continuidad_de_conversation>
 
+{% if metadata.is_empty() %}
+<project_metadata>
+Todavía no se ha establecido ningún dato del proyecto. Estima solo con lo que
+aparece en la transcripción de este turno.
+</project_metadata>
+{% else %}
+<project_metadata>
+- Nombre del proyecto: {{ metadata.project_name }}
+{%- if metadata.assumed_team_size %}
+- Tamaño de equipo acordado: {{ metadata.assumed_team_size }} personas
+{%- endif %}
+{%- if metadata.mentioned_technologies %}
+- Tecnologías mencionadas: {{ metadata.mentioned_technologies | join(", ") }}
+{%- endif %}
+{%- if metadata.agreed_scope %}
+- Alcance acordado: {{ metadata.agreed_scope }}
+{%- endif %}
+</project_metadata>
+{% endif %}
+
 <formato_solicitado>
 {% if output_format == "phases_table" %}
 Usa una tabla Markdown por fases con las columnas: fase, alcance, horas y

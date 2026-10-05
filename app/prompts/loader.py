@@ -69,8 +69,11 @@ def render_session_prompt(
     la plantilla decide con `is_empty()` cómo presentar el primer turno, y no
     dependemos de que el llamador recuerde ese caso.
 
-    El mensaje de usuario es solo la transcripción del turno, ya enriquecida
-    con los adjuntos: el historial guarda exactamente lo que el usuario dijo.
+    El mensaje de usuario envuelve la transcripción del turno, ya enriquecida
+    con los adjuntos. En el historial se guarda este mismo mensaje renderizado,
+    no la transcripción desnuda: así todos los turnos anteriores llevan las
+    mismas vallas de adjunto y el modelo no tiene que adivinar dónde acaba el
+    material de referencia.
     """
     context = {
         "transcript": transcript,
