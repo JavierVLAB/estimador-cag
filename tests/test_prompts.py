@@ -119,6 +119,33 @@ def test_un_adjunto_conserva_su_valla_al_rendereizar() -> None:
     assert "Trece milestones." in user
 
 
+def test_cada_campo_de_la_metadata_va_en_su_propia_linea() -> None:
+    """Regresión: un `{%- if %}` se come el salto anterior y pega los campos.
+
+    Solo comprobar que cada valor aparece no lo detecta: `"Portal"` y
+    `"4 personas"` están presentes aunque acaben en la misma línea.
+    """
+    system, _ = render_session_prompt(
+        transcript="x",
+        metadata=ProjectMetadata(
+            project_name="Portal de reservas",
+            assumed_team_size=4,
+            mentioned_technologies=["React"],
+            agreed_scope="Solo el motor de disponibilidad",
+        ),
+        version="v3",
+        **BASE,
+    )
+
+    bloque = system[system.rfind("<project_metadata>") :]
+    lineas = [linea for linea in bloque.splitlines() if linea.startswith("-")]
+    assert len(lineas) == 4, bloque
+    assert lineas[0] == "- Nombre del proyecto: Portal de reservas"
+    assert lineas[1] == "- Tamaño de equipo acordado: 4 personas"
+    assert lineas[2] == "- Tecnologías mencionadas: React"
+    assert lineas[3] == "- Alcance acordado: Solo el motor de disponibilidad"
+
+
 def test_v3_no_arrastra_los_ejemplos_de_otra_version_por_accidente() -> None:
     """Cada versión tiene su directorio; `include` debe apuntar al suyo."""
     system, _ = render_session_prompt(

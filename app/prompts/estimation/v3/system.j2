@@ -38,15 +38,15 @@ aparece en la transcripción de este turno.
 {% else %}
 <project_metadata>
 - Nombre del proyecto: {{ metadata.project_name }}
-{%- if metadata.assumed_team_size %}
+{% if metadata.assumed_team_size %}
 - Tamaño de equipo acordado: {{ metadata.assumed_team_size }} personas
-{%- endif %}
-{%- if metadata.mentioned_technologies %}
+{% endif %}
+{% if metadata.mentioned_technologies %}
 - Tecnologías mencionadas: {{ metadata.mentioned_technologies | join(", ") }}
-{%- endif %}
-{%- if metadata.agreed_scope %}
+{% endif %}
+{% if metadata.agreed_scope %}
 - Alcance acordado: {{ metadata.agreed_scope }}
-{%- endif %}
+{% endif %}
 </project_metadata>
 {% endif %}
 
