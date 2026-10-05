@@ -32,7 +32,20 @@ class Settings(BaseSettings):
     llm_model: str = "gpt-4o-mini"
     # La versión se decide en el backend. El cliente HTTP nunca puede escoger
     # las instrucciones que se mandan al proveedor.
-    llm_prompt_version: Literal["v1", "v2"] = "v1"
+    llm_prompt_version: Literal["v1", "v2", "v3"] = "v1"
+
+    # Memoria conversacional. El estado vive en un diccionario del proceso: se
+    # pierde al reiniciar y no se comparte entre workers. Son topes de coste y
+    # de latencia, no de corrección.
+    session_max_turns: int = 6
+
+    # Adjuntos. Los tres topes atacan el riesgo en puntos distintos: los bytes
+    # evitan leer un archivo desmedido en memoria, los caracteres acotan lo que
+    # llega al prompt, y el número de archivos acota el caso de muchos
+    # documentos pequeños que en conjunto desbordan.
+    max_attachment_bytes: int = 10_000_000
+    max_attachment_chars: int = 20_000
+    max_attachments_per_request: int = 5
 
     # Límites y comportamiento de la llamada al LLM. Sin un timeout explícito
     # el SDK usa 600 segundos con varios reintentos, y un proveedor atascado
