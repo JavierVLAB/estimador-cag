@@ -41,6 +41,22 @@ class EstimationResult:
     prompt_version: str = PROMPT_VERSION
 
 
+@dataclass(frozen=True)
+class CompletionResult:
+    """Texto generado por el proveedor, sin semántica de estimación.
+
+    Lo necesitan tanto las estimaciones de un turno como el extractor de
+    `project_metadata`, que devuelve JSON y no una estimación. Separarlo de
+    `EstimationResult` evita que el extractor finja haber producido una
+    estimación.
+    """
+
+    text: str
+    model: str
+    provider: str
+    usage: TokenUsage
+
+
 @dataclass
 class EstimationStream:
     """Estimación en streaming: itera los fragmentos de texto del modelo.
@@ -155,6 +171,54 @@ def generate_estimation_stream(request: EstimationRequest) -> EstimationStream:
     return flujo
 
 
+def generate_turn(
+    *,
+    system_prompt: str,
+    messages: list[dict[str, str]],
+    max_output_tokens: int | None = None,
+) -> CompletionResult:
+    """Genera un turno de conversación con el historial ya construido.
+
+    A diferencia de `generate_estimation`, aquí no se renderiza nada: el system
+    prompt llega hecho desde el llamador porque depende del `project_metadata`
+    vigente, y los mensajes ya incluyen los turnos anteriores. Este módulo sigue
+    sin saber nada de sesiones ni de memoria; solo antepone el system prompt al
+    historial y delega en el proveedor.
+
+    `max_output_tokens` se puede ajustar porque el extractor necesita mucho
+    menos que una estimación y no tiene sentido pagar la cota completa ahí.
+    """
+    settings = config.settings
+    mensajes = [{"role": "system", "content": system_prompt}, *messages]
+
+    if settings.llm_provider == "openai":
+        texto, usage = _generate_openai(
+            system_prompt,
+            "",
+            mensajes=mensajes,
+            max_output_tokens=max_output_tokens,
+        )
+    elif settings.llm_provider == "anthropic":
+        texto, usage = _generate_anthropic(
+            system_prompt,
+            "",
+            mensajes=mensajes,
+            max_output_tokens=max_output_tokens,
+        )
+    else:
+        raise ProveedorNoSoportadoError(
+            f"LLM_PROVIDER='{settings.llm_provider}' no está soportado. "
+            "Valores admitidos: 'openai', 'anthropic'."
+        )
+
+    return CompletionResult(
+        text=texto,
+        model=settings.llm_model,
+        provider=settings.llm_provider,
+        usage=usage,
+    )
+
+
 def _log_prompt_metadata(
     *,
     version: str,
@@ -194,11 +258,21 @@ def _log_prompt_metadata(
     )
 
 
-def _generate_openai(system_prompt: str, contenido_usuario: str) -> tuple[str, TokenUsage]:
+def _generate_openai(
+    system_prompt: str,
+    contenido_usuario: str,
+    *,
+    mensajes: list[dict[str, str]] | None = None,
+    max_output_tokens: int | None = None,
+) -> tuple[str, TokenUsage]:
     """Llama a OpenAI. El cliente se crea aquí para no mantener estado global.
 
     El timeout y los reintentos explícitos vienen de Settings: sin ellos, el
     SDK usa 600 segundos y esperaría media hora ante un proveedor atascado.
+
+    `mensajes` es la vía de un turno con historial. Cuando viene, sustituye al
+    par system/user y suprime el par vacío que se pasa por compatibilidad con
+    las llamadas de un solo turno.
     """
     from openai import OpenAI
 
@@ -209,19 +283,26 @@ def _generate_openai(system_prompt: str, contenido_usuario: str) -> tuple[str, T
         max_retries=settings.llm_max_retries,
     )
 
-    response = client.chat.completions.create(
-        model=settings.llm_model,
-        max_tokens=settings.llm_max_output_tokens,
-        messages=[
+    if mensajes is not None:
+        mensajes_a_enviar = mensajes
+        cota = max_output_tokens or settings.llm_max_output_tokens
+    else:
+        mensajes_a_enviar = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": contenido_usuario},
-        ],
+        ]
+        cota = settings.llm_max_output_tokens
+
+    response = client.chat.completions.create(
+        model=settings.llm_model,
+        max_tokens=cota,
+        messages=mensajes_a_enviar,
     )
 
     eleccion = response.choices[0]
     if eleccion.finish_reason == "length":
         raise LLMServiceError(
-            f"La respuesta se truncó en {settings.llm_max_output_tokens} tokens de salida."
+            f"La respuesta se truncó en {cota} tokens de salida."
         )
     contenido = eleccion.message.content
     if not contenido:
@@ -295,12 +376,14 @@ def _generate_openai_stream(
 
 
 def _generate_anthropic(
-    system_prompt: str, contenido_usuario: str
+    system_prompt: str, contenido_usuario: str, *, mensajes: list[dict[str, str]] | None = None,
+    max_output_tokens: int | None = None,
 ) -> tuple[str, TokenUsage]:
     """Llama a Anthropic.
 
     A diferencia de OpenAI, el system prompt es un parámetro propio y no un
-    mensaje más, y `max_tokens` es obligatorio.
+    mensaje más, y `max_tokens` es obligatorio. Con historial, el system prompt
+    se separa de los mensajes porque el SDK exige que vaya aparte.
     """
     import anthropic
 
@@ -311,17 +394,22 @@ def _generate_anthropic(
         max_retries=settings.llm_max_retries,
     )
 
+    if mensajes is not None:
+        mensajes_a_enviar = [m for m in mensajes if m["role"] != "system"]
+        cota = max_output_tokens or settings.llm_max_output_tokens
+    else:
+        mensajes_a_enviar = [{"role": "user", "content": contenido_usuario}]
+        cota = settings.llm_max_output_tokens
+
     response = client.messages.create(
         model=settings.llm_model,
-        max_tokens=settings.llm_max_output_tokens,
+        max_tokens=cota,
         system=system_prompt,
-        messages=[{"role": "user", "content": contenido_usuario}],
+        messages=mensajes_a_enviar,
     )
 
     if response.stop_reason == "max_tokens":
-        raise LLMServiceError(
-            f"La respuesta se truncó en {settings.llm_max_output_tokens} tokens de salida."
-        )
+        raise LLMServiceError(f"La respuesta se truncó en {cota} tokens de salida.")
     # La respuesta es una lista de bloques; solo nos interesa el texto.
     texto = "".join(bloque.text for bloque in response.content if bloque.type == "text")
     if not texto:
