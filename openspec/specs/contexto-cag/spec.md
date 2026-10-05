@@ -23,7 +23,7 @@ El módulo de contexto SHALL contener únicamente datos y SHALL no importar conf
 - **THEN** no importa `app.config`, `app.services` ni FastAPI
 
 ### Requirement: Inyección del contexto en cada llamada
-El sistema SHALL incluir los ejemplos estáticos en el system prompt en cada llamada al LLM, sin caché ni recuperación selectiva.
+El sistema SHALL incluir los ejemplos estáticos en el system prompt en cada llamada al LLM, sin recuperación selectiva.
 
 #### Scenario: Los ejemplos viajan en el prompt
 - **WHEN** se construye el system prompt

@@ -16,13 +16,18 @@ No hay:
 * retrieval
 * vector store
 * persistencia
-* caché
 
-Esto no es deuda técnica pendiente. Los datos de referencia son pequeños y caben en contexto. El objetivo del ejercicio es trabajar la calidad del prompt antes de evolucionar a RAG en módulos posteriores.
+Los datos de referencia son pequeños y caben en contexto. El objetivo del ejercicio es trabajar la calidad del prompt antes de evolucionar a RAG en módulos posteriores.
 
 No introducir estas capas ni rediseñar la arquitectura salvo que el enunciado o Javi lo pidan explícitamente.
 
 Si detectas una limitación arquitectónica relevante, señálala y detente antes de cambiar el enfoque.
+
+### Estado y memoria
+
+A partir de la sesión 05 el servicio sí tiene estado en memoria del proceso: el historial de la conversación y el `project_metadata` de cada sesión viven en un diccionario, se pierden al reiniciar y no se comparten entre workers. Eso es lo que pide el enunciado de esa sesión, no una extensión del diseño CAG: la memoria es de sesión, no del conocimiento de referencia, que sigue viajando completo en el prompt.
+
+Una caché de respuestas sigue sin existir. Si algún día hace falta, es una pieza nueva que se justifica por coste, no una tarea pendiente.
 
 ## Estructura
 

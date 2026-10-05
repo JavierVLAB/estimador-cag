@@ -28,8 +28,12 @@ envía esos.
 **¿Por qué CAG aquí?** Porque los datos de referencia son pequeños y caben de
 sobra en la ventana de contexto del modelo. Añadir una base de datos y un
 buscador no mejoraría el resultado y sí añadiría piezas que mantener. Por eso el
-proyecto **no tiene** base de datos, recuperación, almacén vectorial,
-persistencia ni caché: es una decisión, no algo pendiente de hacer.
+proyecto **no tiene** base de datos, recuperación ni almacén vectorial.
+
+El servicio es, por tanto, **sin estado**: cada petición se estima desde cero y
+el proceso no guarda nada entre llamadas. Una caché de respuestas es la primera
+pieza que tendría que aparecer si el tráfico creciera lo suficiente como para
+que el coste por llamada dejara de ser irrelevante.
 
 ### El flujo, paso a paso
 
