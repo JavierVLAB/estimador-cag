@@ -1,0 +1,12 @@
+<transcript_turn>
+{{ transcript }}
+</transcript_turn>
+
+{% if conversation %}
+<conversation_so_far>
+{{ conversation }}
+</conversation_so_far>
+{% endif %}
+
+Extrae del material anterior los datos de <campos>. Devuelve solo el JSON con
+las cuatro claves.

@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     llm_model: str = "gpt-4o-mini"
     # La versión se decide en el backend. El cliente HTTP nunca puede escoger
     # las instrucciones que se mandan al proveedor.
+    # v3 es la primera versión pensada para turnos de sesión: es la única que
+    # recibe el project_metadata y las reglas de continuidad.
     llm_prompt_version: Literal["v1", "v2", "v3"] = "v1"
 
     # Memoria conversacional. El estado vive en un diccionario del proceso: se
