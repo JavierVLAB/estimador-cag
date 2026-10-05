@@ -210,6 +210,9 @@ def test_el_turno_se_envia_ya_renderizado_no_desnudo(cliente, generador) -> None
     cliente.post(f"/api/v1/sessions/{session_id}/estimate", data=CAMPOS, files={"description": (None, "Turno dos.")})
 
     assert "<transcript_turn>" in generador.estimaciones[1]["messages"][0]["content"]
+    # El turno anterior debe venir con la misma valla que el propio: si el
+    # historial guardara la transcripción desnuda, solo el último la llevaría.
+    assert "<transcript_turn>" in generador.estimaciones[1]["messages"][2]["content"]
 
 
 def test_un_fallo_del_proveedor_se_traduce_a_502(cliente, monkeypatch) -> None:

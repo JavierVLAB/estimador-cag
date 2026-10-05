@@ -200,7 +200,10 @@ def estimate_turn(
         previous_metadata=session.metadata,
         conversation=conversacion,
     )
-    turnos = session.record_turn(user=transcripcion, assistant=completion.text)
+    # Se guarda el mensaje ya renderizado, no la transcripción desnuda: así el
+    # turno recién llegado y los que vieram antes llevan las mismas vallas cuando
+    # se reenvían en el siguiente turno.
+    turnos = session.record_turn(user=contenido_usuario, assistant=completion.text)
 
     return SessionEstimateResponse(
         text=completion.text,
