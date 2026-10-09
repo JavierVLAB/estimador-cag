@@ -1,54 +1,59 @@
-"""Endpoint de estimación.
+"""POST /api/v1/estimate — typed input, validated structured output.
 
-Esta capa solo se ocupa del transporte HTTP: valida la entrada, llama al
-servicio y traduce el resultado (o el fallo) a una respuesta.
+Error handling mapping:
+
+- ``InputGuardrailViolation`` → HTTP 400 with ``{reason, message}`` so the cliente
+  can render a clear actionable message (the regex caught a prompt injection,
+  PII, or moderation flagged the content).
+- Anything else from the pipeline → HTTP 502 (the LLM upstream failed,
+  including ``InstructorRetryException`` when the model couldn't satisfy
+  validators within ``max_retries``).
 """
 
-import logging
+from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, status
+import structlog
+from fastapi import APIRouter, Depends, HTTPException
 
-from app.schemas.estimation import EstimationRequest, EstimationResponse, TokenUsage
-from app.services import llm_service
-from app.services.llm_service import LLMServiceError
+from app.dependencies import get_estimation_service
+from app.guardrails.input import InputGuardrailViolation
+from app.schemas.estimation import EstimationRequest, EstimationResponse
+from app.services.estimation import EstimationService
 
-logger = logging.getLogger(__name__)
+log = structlog.get_logger()
 
-router = APIRouter(tags=["estimaciones"])
+router = APIRouter(prefix="/api/v1", tags=["estimations"])
 
 
-@router.post(
-    "/estimate",
-    response_model=EstimationResponse,
-    summary="Genera una estimación guiada de un proyecto",
-    description=(
-        "Recibe la descripción del proyecto, su tipo, el nivel de detalle y el "
-        "formato de salida. Genera una estimación Markdown con los prompts "
-        "versionados del sistema."
-    ),
-)
-def estimate(peticion: EstimationRequest) -> EstimationResponse:
-    try:
-        resultado = llm_service.generate_estimation(peticion)
-    except LLMServiceError:
-        # El detalle técnico va al log; al cliente solo le llega el motivo,
-        # para no filtrar trazas ni credenciales en la respuesta. Un error de
-        # programación propio NO se captura aquí: debe salir como 500 para no
-        # confundirlo con un fallo del proveedor.
-        logger.exception("Fallo al generar la estimación con el proveedor LLM")
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="El proveedor LLM no pudo generar la estimación.",
-        ) from None
-
-    return EstimationResponse(
-        text=resultado.estimation,
-        prompt_version=resultado.prompt_version,
-        model=resultado.model,
-        provider=resultado.provider,
-        usage=TokenUsage(
-            input_tokens=resultado.usage.input_tokens,
-            output_tokens=resultado.usage.output_tokens,
-            total_tokens=resultado.usage.total_tokens,
-        ),
+@router.post("/estimate", response_model=EstimationResponse)
+def create_estimation(
+    request: EstimationRequest,
+    service: EstimationService = Depends(get_estimation_service),
+) -> EstimationResponse:
+    """Run the full estimation pipeline and return the structured response."""
+    log.info(
+        "estimation_request_received",
+        project_type=request.project_type.value,
+        detail_level=request.detail_level.value,
+        output_format=request.output_format.value,
+        description_chars=len(request.description),
     )
+
+    try:
+        return service.estimate(request)
+    except InputGuardrailViolation as exc:
+        log.info(
+            "estimation_blocked_by_input_guardrail",
+            reason=exc.reason,
+            message=exc.message,
+        )
+        raise HTTPException(
+            status_code=400, detail={"reason": exc.reason, "message": exc.message}
+        ) from exc
+    except Exception as exc:
+        log.error(
+            "estimation_endpoint_error",
+            error=str(exc)[:400],
+            error_type=type(exc).__name__,
+        )
+        raise HTTPException(status_code=502, detail="Upstream LLM call failed") from exc

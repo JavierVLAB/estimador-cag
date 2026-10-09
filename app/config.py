@@ -1,78 +1,81 @@
-"""Configuración del servicio.
-
-Este es el único módulo que lee variables de entorno. El resto del código
-importa `settings` desde aquí, de forma que cambiar de dónde viene la
-configuración no obliga a tocar routers, servicios ni contexto.
-"""
-
 from functools import lru_cache
 from typing import Literal
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Variables de entorno del servicio, cargadas desde `.env`."""
+    """Application settings loaded from environment variables and .env file."""
 
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    # Credenciales. Son opcionales porque solo hace falta la del proveedor activo:
-    # exigir ambas impediría arrancar a quien solo tiene una cuenta.
-    openai_api_key: str | None = None
-    anthropic_api_key: str | None = None
+    # --- Session 2 fields (kept for backwards compatibility with the live demos) ---
+    OPENAI_API_KEY: str | None = None
+    ANTHROPIC_API_KEY: str | None = None
+    LLM_PROVIDER: Literal["openai", "anthropic"] = "anthropic"
+    LLM_MODEL: str = "claude-haiku-4-5"
+    APP_ENV: Literal["development", "staging", "production"] = "development"
+    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "DEBUG"
 
-    # Proveedor y modelo. `llm_model` no se deriva del proveedor a propósito:
-    # el enunciado lo define como variable independiente para poder probar
-    # distintos modelos del mismo proveedor sin tocar código.
-    llm_provider: Literal["openai", "anthropic"] = "openai"
-    llm_model: str = "gpt-4o-mini"
-    # La versión se decide en el backend. El cliente HTTP nunca puede escoger
-    # las instrucciones que se mandan al proveedor.
-    # v3 es la primera versión pensada para turnos de sesión: es la única que
-    # recibe el project_metadata y las reglas de continuidad.
-    llm_prompt_version: Literal["v1", "v2", "v3"] = "v1"
+    # --- Session 3 fields (LiteLLM wrapper, Redis cache, Streamlit transport) ---
+    PRIMARY_MODEL: str = "gpt-4o-mini"
+    FALLBACK_MODEL: str = "claude-haiku-4-5-20251001"
+    LLM_TIMEOUT: int = 30
+    LLM_RETRIES: int = 2
 
-    # Memoria conversacional. El estado vive en un diccionario del proceso: se
-    # pierde al reiniciar y no se comparte entre workers. Son topes de coste y
-    # de latencia, no de corrección.
-    session_max_turns: int = 6
+    REDIS_URL: str = "redis://localhost:6379"
+    CACHE_TTL: int = 86400
 
-    # Adjuntos. Los tres topes atacan el riesgo en puntos distintos: los bytes
-    # evitan leer un archivo desmedido en memoria, los caracteres acotan lo que
-    # llega al prompt, y el número de archivos acota el caso de muchos
-    # documentos pequeños que en conjunto desbordan.
-    max_attachment_bytes: int = 10_000_000
-    max_attachment_chars: int = 20_000
-    max_attachments_per_request: int = 5
+    # --- Session 4 fields (semantic cache) ---
+    EMBEDDING_MODEL: str = "text-embedding-3-small"
+    SEMANTIC_CACHE_THRESHOLD: float = 0.85
+    SEMANTIC_CACHE_TTL: int = 86400
+    # When True, the semantic cache LOGS potential hits but does NOT serve them.
+    # Used to gather metrics before flipping the cache on in production.
+    SEMANTIC_CACHE_LOG_ONLY: bool = False
 
-    # Límites y comportamiento de la llamada al LLM. Sin un timeout explícito
-    # el SDK usa 600 segundos con varios reintentos, y un proveedor atascado
-    # retendría un worker durante media hora.
-    llm_timeout_seconds: float = 30.0
-    llm_max_retries: int = 2
-    llm_max_output_tokens: int = 2000
+    ESTIMATOR_API_BASE_URL: str = "http://localhost:8000"
 
-    # Dirección del API al que se conecta la interfaz Streamlit. Se conserva
-    # separada de la configuración del proveedor: la interfaz nunca llama al
-    # proveedor LLM directamente.
-    estimator_api_base_url: str = "http://localhost:8000"
+    # --- Session 5 fields (conversational memory + attachments) ---
+    # MAX_CONVERSATION_TURNS counts user+assistant pairs. The system prompt is
+    # always preserved as an invariant on top of the window.
+    MAX_CONVERSATION_TURNS: int = 6
+    # Hard cap per extracted attachment (in characters) to protect the context
+    # window. Real chunking enters in module 3.
+    MAX_ATTACHMENT_CHARS: int = 60_000
+    # The metadata extractor runs once per turn; a small/cheap model is enough.
+    METADATA_EXTRACTOR_MODEL: str = "gpt-4o-mini"
 
-    app_env: str = "development"
-    log_level: str = "DEBUG"
+    # --- Session 5 live: compression + tier + ACB ---
+    # Anchor detector: "heuristic" (regex over key phrases) or "llm" (binary
+    # classifier via Instructor). Heuristic is the default for cost.
+    ANCHOR_DETECTION_MODE: Literal["heuristic", "llm"] = "heuristic"
+    # Cheap model used by the cumulative summarizer (history compression).
+    COMPRESSION_MODEL: str = "gpt-4o-mini"
+    # Conversational prompt version used by ``estimate_conversational``.
+    # v2 = pre-live-session baseline. v3 = adds <audience> block driven by tier
+    # and an optional <critic_feedback> block consumed by the Boss.
+    CONVERSATIONAL_PROMPT_VERSION: str = "v3"
+    # Critic model (read-only auditor; cheap is fine).
+    CRITIC_MODEL: str = "gpt-4o-mini"
+    # Max iterations the Boss can drive (each iteration = 1 actor + 1 critic call).
+    # Three is the practical floor: one initial draft + two directed retries.
+    # With only two iterations the actor often cannot address all flagged issues
+    # in the single available retry, and the loop falls back without converging.
+    BOSS_MAX_ITERATIONS: int = 3
+
+    @model_validator(mode="after")
+    def validate_at_least_one_api_key(self) -> "Settings":
+        """LiteLLM may try either provider via fallback, so we require at least one key."""
+        if not self.OPENAI_API_KEY and not self.ANTHROPIC_API_KEY:
+            raise ValueError(
+                "At least one of OPENAI_API_KEY or ANTHROPIC_API_KEY must be set"
+            )
+        return self
 
 
 @lru_cache
 def get_settings() -> Settings:
-    """Devuelve la configuración, leída una sola vez por proceso.
-
-    La caché permite además que los tests sustituyan la configuración
-    limpiándola con `get_settings.cache_clear()`.
-    """
+    """Return cached application settings (singleton)."""
     return Settings()
-
-
-settings = get_settings()

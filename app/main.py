@@ -1,30 +1,76 @@
-"""Aplicación FastAPI del estimador CAG."""
-
-import logging
+import structlog
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import settings
+from app.config import get_settings
 from app.routers import estimations, sessions
 
-logging.basicConfig(level=settings.log_level.upper())
+
+def configure_logging() -> None:
+    """Set up structlog: JSON in production, human-readable in development."""
+    settings = get_settings()
+
+    if settings.APP_ENV == "production":
+        renderer = structlog.processors.JSONRenderer()
+    else:
+        renderer = structlog.dev.ConsoleRenderer()
+
+    structlog.configure(
+        processors=[
+            structlog.contextvars.merge_contextvars,
+            structlog.stdlib.add_log_level,
+            structlog.processors.TimeStamper(fmt="iso"),
+            structlog.processors.StackInfoRenderer(),
+            structlog.processors.format_exc_info,
+            renderer,
+        ],
+        wrapper_class=structlog.stdlib.BoundLogger,
+        context_class=dict,
+        logger_factory=structlog.PrintLoggerFactory(),
+        cache_logger_on_first_use=True,
+    )
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application startup and shutdown lifecycle."""
+    configure_logging()
+    log = structlog.get_logger()
+    settings = get_settings()
+    log.info("application_started", environment=settings.APP_ENV)
+    yield
+    log.info("application_shutdown")
+
 
 app = FastAPI(
-    title="Estimador de Presupuestos",
-    version="1.0.0",
-    description=(
-        "Genera estimaciones de software a partir de la transcripción de una "
-        "reunión con el cliente.\n\n"
-        "Usa arquitectura CAG: las estimaciones de referencia viajan completas "
-        "en el prompt de cada llamada, sin base de datos ni recuperación."
-    ),
+    title="Software Estimation Service",
+    description="AI-powered software estimation service with typed input and versioned prompts",
+    version="0.1.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
-app.include_router(estimations.router, prefix="/api/v1")
-app.include_router(sessions.router, prefix="/api/v1")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(estimations.router)
+app.include_router(sessions.router)
 
 
-@app.get("/health", tags=["estado"], summary="Comprueba que el servicio está operativo")
-def health() -> dict[str, str]:
-    """No consulta al LLM: solo confirma que la aplicación responde."""
-    return {"status": "ok", "environment": settings.app_env}
+@app.get("/health")
+async def health_check() -> dict:
+    """Return service health status."""
+    settings = get_settings()
+    return {
+        "status": "healthy",
+        "version": "0.1.0",
+        "environment": settings.APP_ENV,
+    }

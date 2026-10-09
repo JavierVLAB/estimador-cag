@@ -1,138 +1,28 @@
-# estimador-cag
+# estimador-cag — rama de la sesión 06
 
-Servicio FastAPI que recibe la transcripción de una reunión y devuelve una estimación de software generada por un LLM.
+En esta rama el código **no es nuestro**: es el `estimator/` de la rama `session_06` del repo del curso (`LIDR-academy/ai-engineering`), copiado a la raíz. Nuestro estimador propio hasta la sesión 5 vive en la rama `pre-session-05`.
 
-Es el Proyecto 1 del curso AI Engineering 2026/09 (Sesión 2).
+Se cambió de base porque el ejercicio 06 da por hecho piezas que nuestro estimador no tenía (summarizer, anclas, tier dinámico, caché, Actor-Critic-Boss, wrapper con latencia y coste, framework de evals).
 
-Antes de proponer cambios, leer `docs/ejercicio.md`. El enunciado define el alcance y tiene prioridad sobre mejoras o extensiones no solicitadas.
+Antes de proponer cambios, leer `docs/ejercicio_06.md`. El enunciado define el alcance.
 
-## Arquitectura
+## Qué pide el ejercicio
 
-Este proyecto usa **CAG deliberadamente**: todo el contexto necesario viaja en cada llamada al modelo.
+Medir, no construir. El código de `evals/stress/` ya viene en la rama de referencia. El entregable es:
 
-No hay:
+* `evals/stress/results.csv`, generado por el runner contra un servidor real.
+* `evals/stress/REPORT.md`, con los huecos del esqueleto rellenados con los números del CSV.
 
-* base de datos
-* retrieval
-* vector store
-* persistencia
+No optimizar el CAG ni mover constantes: invalidaría la comparación con RAG que se hace en el directo.
 
-Los datos de referencia son pequeños y caben en contexto. El objetivo del ejercicio es trabajar la calidad del prompt antes de evolucionar a RAG en módulos posteriores.
+## Diferencias con el README
 
-No introducir estas capas ni rediseñar la arquitectura salvo que el enunciado o Javi lo pidan explícitamente.
-
-Si detectas una limitación arquitectónica relevante, señálala y detente antes de cambiar el enfoque.
-
-### Estado y memoria
-
-A partir de la sesión 05 el servicio sí tiene estado en memoria del proceso: el historial de la conversación y el `project_metadata` de cada sesión viven en un diccionario, se pierden al reiniciar y no se comparten entre workers. Eso es lo que pide el enunciado de esa sesión, no una extensión del diseño CAG: la memoria es de sesión, no del conocimiento de referencia, que sigue viajando completo en el prompt.
-
-Una caché de respuestas sigue sin existir. Si algún día hace falta, es una pieza nueva que se justifica por coste, no una tarea pendiente.
-
-Consecuencia que conviene no olvidar al trabajar: `uvicorn --reload` recarga en cada cambio de archivo, así que cada guardado borra las conversaciones abiertas. Los tests no lo notan porque sustituyen el proveedor, no el store.
-
-### Coste de la extracción de metadata
-
-Extraer el `project_metadata` es una segunda llamada al proveedor por turno. Está asumido como coste consciente, no como descuido: la alternativa barata, un `regex` sobre la respuesta, obligaría a meter un bloque de campos dentro de la estimación que se entrega.
-
-Degradación acordada: si el extractor falla, la estimación se entrega igual con la metadata anterior. No subir esa degradación a error.
-
-La versión de plantilla de los turnos de sesión está fijada en `v3` (`SESSION_PROMPT_VERSION` en `app/prompts/loader.py`) y no se configura por entorno. `LLM_PROMPT_VERSION` sigue gobernando solo el endpoint sin estado. No unificarlas sin hablarlo: `v1` y `v2` no reciben metadata y renderizarían con variables sin definir.
-
-## Estructura
-
-La estructura base la fija el enunciado y no se modifica sin discutirlo:
-
-```text
-app/
-├── main.py          # aplicación FastAPI, health check, montaje de routers
-├── config.py        # Settings con pydantic-settings, lee .env
-├── routers/         # endpoints HTTP
-├── services/        # lógica de negocio y llamadas al LLM
-└── context/         # datos estáticos inyectados en el prompt
-```
-
-La separación es intencional aunque el ejercicio pudiera resolverse en menos archivos.
-
-Mantén los cambios dentro de esta estructura salvo necesidad explícita.
-
-## Stack
-
-* Python 3.11+
-* `uv` como gestor de paquetes
-* FastAPI + uvicorn
-* `pydantic-settings`
-* Proveedor seleccionable mediante `LLM_PROVIDER`
-* OpenAI: `gpt-4o-mini`
-* Anthropic: `claude-haiku-4-5`
-
-No sustituir herramientas, librerías o modelos por preferencias propias sin una razón ligada al ejercicio.
-
-## Comandos
-
-```bash
-uv sync
-uv run uvicorn app.main:app --reload
-```
-
-El servidor lo ejecuta Javi, no el agente.
+El `README.md` es el original del curso y dice `cd estimator`. Aquí el código está en la raíz, así que ese paso sobra.
 
 ## Límites operativos
 
-* Nunca arrancar servidores, watchers o procesos de larga duración.
+* El servidor y `docker compose` los arranca Javi, no el agente.
 * Nunca leer ni escribir `.env`.
-* Documentar variables nuevas en `.env.example`, sin valores reales.
-* Nunca introducir API keys o secretos en código, tests, logs o documentación.
-* La configuración debe pasar por `config.py`.
-* No realizar llamadas reales a un LLM sin autorización explícita.
+* No hacer llamadas reales a un LLM sin autorización explícita. El runner del stress test las hace.
 * No instalar, eliminar o actualizar dependencias sin discutirlo antes.
-
-## Forma de trabajo
-
-Respeta el modo actual de la tarea.
-
-Si estamos analizando, diseñando o planificando, no empieces a modificar código. “Continúa” significa continuar en el modo actual, no pasar automáticamente a implementación.
-
-No interpretes una preferencia, una opción elegida o una discusión técnica como autorización para implementar.
-
-Mantén el cambio mínimo necesario para el objetivo actual. Evita refactors, limpieza lateral o mejoras no relacionadas.
-
-Si falta información que cambia materialmente la solución, señálalo antes de asumirla.
-
-## OpenSpec
-
-OpenSpec está inicializado en `openspec/`.
-
-Antes de implementar cualquier cambio de código:
-
-1. Leer `docs/ejercicio.md`.
-2. Leer las specs relevantes de `openspec/`.
-3. Crear el change con `/opsx:propose`.
-4. Esperar aprobación explícita.
-5. Solo entonces modificar código.
-
-Aprobar una idea, decir “me gusta la opción A” o pedir que continúes no autoriza por sí mismo a escribir código.
-
-## Convenciones de código
-
-* Código claro, legible y auditable.
-* Seguir las convenciones existentes del proyecto.
-* Archivos cortos y responsabilidades claras.
-* Comentarios y docstrings en español cuando aporten valor.
-* Explicar el **por qué**, no describir código evidente.
-* Preferir soluciones simples frente a abstracciones prematuras.
-
-## Verificación
-
-No afirmar que algo funciona solo porque el código parece correcto.
-
-Después de implementar:
-
-* ejecutar las comprobaciones locales apropiadas
-* usar tests o mocks antes que llamadas reales al LLM
-* verificar primero la parte modificada
-* ampliar la validación solo si aporta valor
-
-Si algo falla, inspeccionar la causa antes de hacer cambios adicionales.
-
-No modificar varias cosas especulativamente para intentar hacer desaparecer un error.
+* No modificar el código de referencia salvo que el ejercicio lo exija.
