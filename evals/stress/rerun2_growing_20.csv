@@ -1,0 +1,25 @@
+scenario,attachment_size_kb,repeat,turn_index,attempt,session_id,enriched_transcript_chars,attachments_total_chars,messages_in_window,anchors_count,summary_chars,tokens_in,tokens_out,cost_usd,latency_ms,wall_clock_ms,cache_hit_kind,last_resolved_tier,latency_budget_passed,cost_budget_passed,memory_drift_passed,tracked_fact,facts_tracked,facts_recalled,fact_recall,old_fact_in,new_fact_in,error
+growing,20,0,1,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20948,20731,2,0,0,12764,644,0.002301,6171,7645,none,default,True,True,,Nimbus,0,0,,,,
+growing,20,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/5bad0132-f8aa-444e-b9ea-6a0a9b83589b/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,20,0,2,2,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20900,20731,4,0,0,9915,324,0.001682,2999,4919,none,default,True,True,True,Nimbus,1,1,1.0,,,
+growing,20,0,3,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20857,20731,6,0,0,64789,1178,0.010425,11166,13603,none,default,False,True,True,Nimbus,2,2,1.0,,,
+growing,20,0,4,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20898,20731,8,0,0,18028,298,0.002883,3608,6320,none,default,True,True,True,Nimbus,3,2,0.6666666666666666,,,
+growing,20,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/5bad0132-f8aa-444e-b9ea-6a0a9b83589b/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,20,0,5,2,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20857,20731,10,0,0,22050,325,0.003502,3118,5582,none,default,True,True,True,Nimbus,4,3,0.75,,,
+growing,20,0,6,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20887,20731,12,0,0,82210,908,0.012876,9684,12815,none,default,False,True,True,Nimbus,5,4,0.8,,,
+growing,20,0,7,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20855,20731,12,0,1119,61261,569,0.009531,5913,12120,none,default,True,True,True,Nimbus,6,5,0.8333333333333334,,,
+growing,20,0,8,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20883,20731,12,0,1324,30315,294,0.004724,3308,9064,none,default,True,True,True,Nimbus,7,5,0.7142857142857143,,,
+growing,20,0,9,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20885,20731,12,0,1550,30345,287,0.004724,3400,9398,none,default,True,True,True,Nimbus,8,7,0.875,,,
+growing,20,0,10,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20858,20731,12,0,1703,30388,286,0.00473,3260,9420,none,default,True,True,True,Nimbus,9,8,0.8888888888888888,,,
+growing,20,0,11,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20859,20731,12,0,1818,30415,292,0.004737,3745,10289,none,default,True,True,True,Nimbus,10,8,0.8,,,
+growing,20,0,12,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20880,20731,12,0,1745,30431,288,0.004737,3173,9713,none,default,True,True,True,Nimbus,11,9,0.8181818181818182,,,
+growing,20,0,13,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20856,20731,12,0,1911,30426,295,0.004741,3942,11517,none,default,True,True,True,Nimbus,12,10,0.8333333333333334,,,
+growing,20,0,14,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20867,20731,12,0,2037,30493,296,0.004752,3467,13288,none,default,True,True,True,Nimbus,13,9,0.6923076923076923,,,
+growing,20,0,15,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20851,20731,12,0,1827,30394,293,0.004735,3667,9231,none,executive,True,True,True,Nimbus,14,10,0.7142857142857143,,,
+growing,20,0,16,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20895,20731,12,0,1981,30385,303,0.00474,3500,9396,none,executive,True,True,True,Nimbus,15,11,0.7333333333333333,,,
+growing,20,0,17,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20887,20731,12,0,2101,30466,283,0.00474,3407,9875,none,executive,True,True,True,Nimbus,16,12,0.75,,,
+growing,20,0,18,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20858,20731,12,0,2277,30501,268,0.004736,6111,12992,none,executive,True,True,True,Nimbus,17,13,0.7647058823529411,,,
+growing,20,0,19,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20874,20731,12,0,2453,30518,299,0.004757,3172,10213,none,executive,True,True,True,Nimbus,18,14,0.7777777777777778,,,
+growing,20,0,20,1,5bad0132-f8aa-444e-b9ea-6a0a9b83589b,20888,20731,12,0,2618,30605,277,0.004757,3478,11357,none,executive,True,True,True,Nimbus,19,15,0.7894736842105263,,,

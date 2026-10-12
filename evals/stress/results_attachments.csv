@@ -1,0 +1,79 @@
+scenario,attachment_size_kb,repeat,turn_index,attempt,session_id,enriched_transcript_chars,attachments_total_chars,messages_in_window,anchors_count,summary_chars,tokens_in,tokens_out,cost_usd,latency_ms,wall_clock_ms,cache_hit_kind,last_resolved_tier,latency_budget_passed,cost_budget_passed,memory_drift_passed,tracked_fact,facts_tracked,facts_recalled,fact_recall,old_fact_in,new_fact_in,error
+growing,5,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/38986b17-3c44-4ebe-91d8-7f7cba34e8b7/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,5,0,1,2,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5670,5454,2,0,0,34129,1680,0.006127,15232,16913,none,default,False,True,,Nimbus,0,0,,,,
+growing,5,0,2,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5622,5454,4,0,0,4582,338,0.00089,3040,4485,none,default,True,True,True,Nimbus,1,1,1.0,,,
+growing,5,0,3,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5579,5454,6,0,0,13093,664,0.002362,5793,7775,none,default,True,True,True,Nimbus,2,2,1.0,,,
+growing,5,0,4,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5620,5454,8,0,0,7327,311,0.001286,3182,5113,none,default,True,True,True,Nimbus,3,2,0.6666666666666666,,,
+growing,5,0,5,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5579,5454,10,0,0,30005,921,0.005053,8287,10226,none,default,False,True,True,Nimbus,4,3,0.75,,,
+growing,5,0,6,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5609,5454,12,0,0,21206,644,0.003567,6103,8303,none,default,True,True,True,Nimbus,5,4,0.8,,,
+growing,5,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/38986b17-3c44-4ebe-91d8-7f7cba34e8b7/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,5,0,,2,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/38986b17-3c44-4ebe-91d8-7f7cba34e8b7/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,5,0,7,3,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5577,5454,12,0,818,38116,897,0.006256,8625,12795,none,default,False,True,True,Nimbus,6,5,0.8333333333333334,,,
+growing,5,0,8,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5605,5454,12,0,1104,11582,307,0.001922,2834,7482,none,default,True,True,True,Nimbus,7,5,0.7142857142857143,,,
+growing,5,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/38986b17-3c44-4ebe-91d8-7f7cba34e8b7/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,5,0,9,2,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5607,5454,12,0,1175,11635,311,0.001932,3354,8697,none,default,True,True,True,Nimbus,8,7,0.875,,,
+growing,5,0,10,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5580,5454,12,0,1298,55928,1238,0.009132,10970,15381,none,default,False,True,True,Nimbus,9,7,0.7777777777777778,,,
+growing,5,0,11,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5581,5454,12,0,1435,24186,636,0.00401,5381,9802,none,default,True,True,True,Nimbus,10,7,0.7,,,
+growing,5,0,12,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5602,5454,12,0,1385,11603,317,0.001931,3048,7591,none,default,True,True,True,Nimbus,11,9,0.8181818181818182,,,
+growing,5,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/38986b17-3c44-4ebe-91d8-7f7cba34e8b7/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,5,0,13,2,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5578,5454,12,0,1485,11613,329,0.001939,3177,8257,none,default,True,True,True,Nimbus,12,9,0.75,,,
+growing,5,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/38986b17-3c44-4ebe-91d8-7f7cba34e8b7/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,5,0,14,2,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5589,5454,12,0,1624,11696,336,0.001956,3001,8925,none,default,True,True,True,Nimbus,13,10,0.7692307692307693,,,
+growing,5,0,15,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5573,5454,12,0,1724,11886,320,0.001975,2969,9063,none,executive,True,True,True,Nimbus,14,12,0.8571428571428571,,,
+growing,5,0,16,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5617,5454,12,0,1860,11966,342,0.002,3288,9953,none,executive,True,True,True,Nimbus,15,13,0.8666666666666667,,,
+growing,5,0,17,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5609,5454,12,0,1981,12060,334,0.002009,2858,11500,none,executive,True,True,True,Nimbus,16,12,0.75,,,
+growing,5,0,18,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5580,5454,12,0,2088,11878,334,0.001982,3217,8709,none,executive,True,True,True,Nimbus,17,13,0.7647058823529411,,,
+growing,5,0,19,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5596,5454,12,0,2186,11921,375,0.002013,3891,9454,none,executive,True,True,True,Nimbus,18,15,0.8333333333333334,,,
+growing,5,0,20,1,38986b17-3c44-4ebe-91d8-7f7cba34e8b7,5610,5454,12,0,2324,12028,329,0.002002,3487,9172,none,executive,True,True,True,Nimbus,19,16,0.8421052631578947,,,
+growing,20,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/98f5a186-997c-42ff-bde6-dc517b8a53f5/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,20,0,,2,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/98f5a186-997c-42ff-bde6-dc517b8a53f5/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,20,0,,3,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/98f5a186-997c-42ff-bde6-dc517b8a53f5/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,50,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/1101b3d1-0eda-4bf4-9189-15227d98aa2a/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,50,0,,2,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/1101b3d1-0eda-4bf4-9189-15227d98aa2a/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,50,0,1,3,1101b3d1-0eda-4bf4-9189-15227d98aa2a,51502,51285,2,0,0,23404,591,0.003865,6122,8803,none,default,True,True,,Nimbus,0,0,,,,
+growing,50,0,2,1,1101b3d1-0eda-4bf4-9189-15227d98aa2a,51454,51285,4,0,0,42541,632,0.00676,6324,9012,none,default,True,True,True,Nimbus,1,1,1.0,,,
+growing,50,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/1101b3d1-0eda-4bf4-9189-15227d98aa2a/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,50,0,,2,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/1101b3d1-0eda-4bf4-9189-15227d98aa2a/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,50,0,,3,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/1101b3d1-0eda-4bf4-9189-15227d98aa2a/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,100,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/9a871a2c-0d83-47f1-ad55-7d37530c22e0/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,100,0,1,2,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60218,60000,2,0,0,81001,1555,0.013083,16340,18169,none,default,False,True,,Nimbus,0,0,,,,
+growing,100,0,2,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60170,60000,4,0,0,74905,915,0.011785,8434,10294,none,default,False,True,True,Nimbus,1,1,1.0,,,
+growing,100,0,3,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60127,60000,6,0,0,34567,307,0.005369,3589,5927,none,default,True,True,True,Nimbus,2,2,1.0,,,
+growing,100,0,4,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60168,60000,8,0,0,45454,298,0.006997,3550,5987,none,default,True,True,True,Nimbus,3,2,0.6666666666666666,,,
+growing,100,0,5,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60127,60000,10,0,0,56423,293,0.008639,4072,6832,none,default,True,True,True,Nimbus,4,3,0.75,,,
+growing,100,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/9a871a2c-0d83-47f1-ad55-7d37530c22e0/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,100,0,6,2,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60157,60000,12,0,0,205947,931,0.031451,8971,11802,none,default,False,False,True,Nimbus,5,4,0.8,,,
+growing,100,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/9a871a2c-0d83-47f1-ad55-7d37530c22e0/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,100,0,7,2,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60125,60000,12,0,1288,238505,885,0.036307,9127,14678,none,default,False,False,True,Nimbus,6,5,0.8333333333333334,,,
+growing,100,0,8,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60153,60000,12,0,1340,157922,548,0.024017,7537,13450,none,default,True,False,True,Nimbus,7,6,0.8571428571428571,,,
+growing,100,0,9,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60155,60000,12,0,1449,78456,273,0.011932,5620,12383,none,default,True,True,True,Nimbus,8,8,1.0,,,
+growing,100,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/9a871a2c-0d83-47f1-ad55-7d37530c22e0/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,100,0,10,2,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60128,60000,12,0,1893,239314,902,0.036438,11822,20628,none,default,False,False,True,Nimbus,9,9,1.0,,,
+growing,100,0,11,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60129,60000,12,0,2032,78589,289,0.011962,5582,14679,none,default,True,True,True,Nimbus,10,8,0.8,,,
+growing,100,0,12,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60150,60000,12,0,2108,78342,304,0.011934,4962,12797,none,default,True,True,True,Nimbus,11,9,0.8181818181818182,,,
+growing,100,0,13,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60126,60000,12,0,1993,78380,282,0.011926,6889,12169,none,default,True,True,True,Nimbus,12,9,0.75,,,
+growing,100,0,14,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60137,60000,12,0,2140,78358,291,0.011928,8715,16080,none,default,False,True,True,Nimbus,13,10,0.7692307692307693,,,
+growing,100,0,15,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60121,60000,12,0,2318,78534,298,0.011959,12019,18430,none,executive,False,True,True,Nimbus,14,12,0.8571428571428571,,,
+growing,100,0,16,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60165,60000,12,0,2510,78582,295,0.011964,5302,12128,none,executive,True,True,True,Nimbus,15,13,0.8666666666666667,,,
+growing,100,0,17,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60157,60000,12,0,2700,78675,292,0.011976,5195,11328,none,executive,True,True,True,Nimbus,16,13,0.8125,,,
+growing,100,0,18,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60128,60000,12,0,2963,78537,296,0.011958,17039,26801,none,default,False,True,True,Nimbus,17,13,0.7647058823529411,,,
+growing,100,0,19,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60144,60000,12,0,3125,78624,305,0.011977,5254,13098,none,default,True,True,True,Nimbus,18,14,0.7777777777777778,,,
+growing,100,0,20,1,9a871a2c-0d83-47f1-ad55-7d37530c22e0,60158,60000,12,0,3373,78729,285,0.01198,9418,21509,none,default,False,True,True,Nimbus,19,15,0.7894736842105263,,,

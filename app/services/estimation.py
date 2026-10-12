@@ -253,10 +253,10 @@ class EstimationService:
         #    operation now — compression (anchor promotion + cumulative
         #    summary + sliding window) is the next, explicit step.
         session.history.append(user=user_message, assistant=result.model_dump_json())
-        # Capture turn_index BEFORE compression: post-compression the sliding
-        # window plateaus at ``max_turns`` and ``len(messages) // 2`` would
-        # stop reflecting how many turns the session has actually seen.
-        turn_index = len(session.history.messages) // 2
+        # The sliding window plateaus at ``max_turns``, so the turn number comes
+        # from a session counter instead of the window length.
+        session.turns_processed += 1
+        turn_index = session.turns_processed
         apply_compression(
             session.history,
             llm_wrapper=self.llm_wrapper,

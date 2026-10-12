@@ -214,7 +214,7 @@ class LLMWrapper:
         )
         t0 = time.perf_counter()
         try:
-            result = self._instructor.chat.completions.create(
+            result, completion = self._instructor.chat.completions.create_with_completion(
                 model=target_model,
                 api_key=api_key,
                 timeout=self.timeout,
@@ -234,16 +234,27 @@ class LLMWrapper:
             raise
 
         latency_ms = int((time.perf_counter() - t0) * 1000)
+        # With retries, instructor accumulates usage across attempts on the
+        # raw completion, so this covers the whole call.
+        usage = getattr(completion, "usage", None)
+        tokens_in = getattr(usage, "prompt_tokens", 0) or 0
+        tokens_out = getattr(usage, "completion_tokens", 0) or 0
         meta = {
             "model": _normalise_model_name(target_model),
             "provider": _provider_from_model(target_model),
             "latency_ms": latency_ms,
+            "tokens_in": tokens_in,
+            "tokens_out": tokens_out,
+            "cost_usd": _estimate_cost(target_model, tokens_in, tokens_out),
         }
         log.info(
             "llm_structured_chat_completed",
             model=meta["model"],
             provider=meta["provider"],
             latency_ms=latency_ms,
+            tokens_in=tokens_in,
+            tokens_out=tokens_out,
+            cost_usd=meta["cost_usd"],
         )
         return result, meta
 

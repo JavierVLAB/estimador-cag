@@ -25,4 +25,3 @@ El `README.md` es el original del curso y dice `cd estimator`. Aquí el código 
 * Nunca leer ni escribir `.env`.
 * No hacer llamadas reales a un LLM sin autorización explícita. El runner del stress test las hace.
 * No instalar, eliminar o actualizar dependencias sin discutirlo antes.
-* No modificar el código de referencia salvo que el ejercicio lo exija.

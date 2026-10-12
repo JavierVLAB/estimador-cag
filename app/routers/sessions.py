@@ -61,6 +61,10 @@ class SessionInfoResponse(BaseModel):
     metadata: ProjectMetadata
     anchors_count: int = 0
     summary_chars: int = 0
+    # Text of the cumulative summary and the anchored turns, so the stress
+    # runner's MemoryDriftMetric can search them and not only the metadata.
+    summary: str | None = None
+    anchors: list[str] = Field(default_factory=list)
     last_resolved_tier: str | None = None
     last_tier_rule: str | None = None
 
@@ -90,6 +94,8 @@ def get_session(
         metadata=session.metadata,
         anchors_count=len(session.history.anchors),
         summary_chars=len(session.history.summary or ""),
+        summary=session.history.summary,
+        anchors=[anchor.content for anchor in session.history.anchors],
         last_resolved_tier=session.last_resolved_tier,
         last_tier_rule=session.last_tier_rule,
     )

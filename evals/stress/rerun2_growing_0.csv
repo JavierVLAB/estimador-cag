@@ -1,0 +1,43 @@
+scenario,attachment_size_kb,repeat,turn_index,attempt,session_id,enriched_transcript_chars,attachments_total_chars,messages_in_window,anchors_count,summary_chars,tokens_in,tokens_out,cost_usd,latency_ms,wall_clock_ms,cache_hit_kind,last_resolved_tier,latency_budget_passed,cost_budget_passed,memory_drift_passed,tracked_fact,facts_tracked,facts_recalled,fact_recall,old_fact_in,new_fact_in,error
+growing,0,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0ab65b6f-8714-42f5-ade3-9a8669162021/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,0,0,,2,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0ab65b6f-8714-42f5-ade3-9a8669162021/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,0,0,,3,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0ab65b6f-8714-42f5-ade3-9a8669162021/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,0,0,,4,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0ab65b6f-8714-42f5-ade3-9a8669162021/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,0,0,1,5,0ab65b6f-8714-42f5-ade3-9a8669162021,156,0,2,0,0,10446,912,0.002114,7809,9362,none,default,True,True,,Nimbus,0,0,,,,
+growing,0,0,2,1,0ab65b6f-8714-42f5-ade3-9a8669162021,108,0,4,0,0,6344,676,0.001357,5390,7089,none,default,True,True,True,Nimbus,1,1,1.0,,,
+growing,0,0,3,1,0ab65b6f-8714-42f5-ade3-9a8669162021,65,0,6,0,0,21802,1302,0.004051,11237,12394,none,default,False,True,True,Nimbus,2,2,1.0,,,
+growing,0,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0ab65b6f-8714-42f5-ade3-9a8669162021/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,0,0,,2,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0ab65b6f-8714-42f5-ade3-9a8669162021/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,0,0,,3,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0ab65b6f-8714-42f5-ade3-9a8669162021/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,0,0,,4,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0ab65b6f-8714-42f5-ade3-9a8669162021/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,0,0,4,5,0ab65b6f-8714-42f5-ade3-9a8669162021,106,0,8,0,0,34540,1535,0.006102,14674,16062,none,default,False,True,True,Nimbus,3,2,0.6666666666666666,,,
+growing,0,0,5,1,0ab65b6f-8714-42f5-ade3-9a8669162021,65,0,10,0,0,3776,299,0.000746,2638,4503,none,default,True,True,True,Nimbus,4,3,0.75,,,
+growing,0,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0ab65b6f-8714-42f5-ade3-9a8669162021/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,0,0,,2,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0ab65b6f-8714-42f5-ade3-9a8669162021/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,0,0,,3,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0ab65b6f-8714-42f5-ade3-9a8669162021/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,0,0,6,4,0ab65b6f-8714-42f5-ade3-9a8669162021,95,0,12,0,0,4154,304,0.000806,2849,4932,none,default,True,True,True,Nimbus,5,4,0.8,,,
+growing,0,0,7,1,0ab65b6f-8714-42f5-ade3-9a8669162021,63,0,12,0,590,4531,286,0.000851,2569,6613,none,default,True,True,True,Nimbus,6,4,0.6666666666666666,,,
+growing,0,0,8,1,0ab65b6f-8714-42f5-ade3-9a8669162021,91,0,12,0,747,4676,280,0.000869,2656,6829,none,default,True,True,True,Nimbus,7,4,0.5714285714285714,,,
+growing,0,0,9,1,0ab65b6f-8714-42f5-ade3-9a8669162021,93,0,12,0,725,4688,295,0.00088,3027,8121,none,default,True,True,True,Nimbus,8,6,0.75,,,
+growing,0,0,10,1,0ab65b6f-8714-42f5-ade3-9a8669162021,66,0,12,0,845,4687,313,0.000891,3475,8140,none,default,True,True,True,Nimbus,9,7,0.7777777777777778,,,
+growing,0,0,11,1,0ab65b6f-8714-42f5-ade3-9a8669162021,67,0,12,0,943,18233,936,0.003297,8536,14234,none,default,False,True,True,Nimbus,10,7,0.7,,,
+growing,0,0,12,1,0ab65b6f-8714-42f5-ade3-9a8669162021,88,0,12,0,1136,10762,606,0.001978,7758,13469,none,default,True,True,True,Nimbus,11,9,0.8181818181818182,,,
+growing,0,0,13,1,0ab65b6f-8714-42f5-ade3-9a8669162021,64,0,12,0,1210,4913,308,0.000922,3623,9623,none,default,True,True,True,Nimbus,12,10,0.8333333333333334,,,
+growing,0,0,14,1,0ab65b6f-8714-42f5-ade3-9a8669162021,75,0,12,0,1463,4950,311,0.000929,2617,10825,none,default,True,True,True,Nimbus,13,8,0.6153846153846154,,,
+growing,0,0,15,1,0ab65b6f-8714-42f5-ade3-9a8669162021,59,0,12,0,1569,4913,298,0.000916,2867,7605,none,executive,True,True,True,Nimbus,14,10,0.7142857142857143,,,
+growing,0,0,16,1,0ab65b6f-8714-42f5-ade3-9a8669162021,103,0,12,0,1738,4963,318,0.000935,2980,8583,none,executive,True,True,True,Nimbus,15,11,0.7333333333333333,,,
+growing,0,0,17,1,0ab65b6f-8714-42f5-ade3-9a8669162021,95,0,12,0,2198,5033,316,0.000945,2827,9182,none,executive,True,True,True,Nimbus,16,13,0.8125,,,
+growing,0,0,18,1,0ab65b6f-8714-42f5-ade3-9a8669162021,66,0,12,0,2313,5117,125,0.000843,1678,9143,none,executive,True,True,True,Nimbus,17,14,0.8235294117647058,,,
+growing,0,0,19,1,0ab65b6f-8714-42f5-ade3-9a8669162021,82,0,12,0,2494,4959,116,0.000813,1648,6620,none,executive,True,True,True,Nimbus,18,15,0.8333333333333334,,,
+growing,0,0,20,1,0ab65b6f-8714-42f5-ade3-9a8669162021,96,0,12,0,2389,4804,300,0.000901,3359,10170,none,executive,True,True,True,Nimbus,19,16,0.8421052631578947,,,

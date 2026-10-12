@@ -144,7 +144,9 @@ def test_complete_structured_chat_forwards_messages(wrapper: LLMWrapper) -> None
 
     expected = _Answer(text="ok")
     with patch.object(
-        wrapper._instructor.chat.completions, "create", return_value=expected
+        wrapper._instructor.chat.completions,
+        "create_with_completion",
+        return_value=(expected, _fake_completion(model="gpt-4o-mini")),
     ) as mocked:
         result, meta = wrapper.complete_structured_chat(
             messages=messages,
@@ -168,7 +170,9 @@ def test_complete_structured_chat_uses_anthropic_key_for_claude(wrapper: LLMWrap
         text: str
 
     with patch.object(
-        wrapper._instructor.chat.completions, "create", return_value=_Answer(text="x")
+        wrapper._instructor.chat.completions,
+        "create_with_completion",
+        return_value=(_Answer(text="x"), _fake_completion(model="claude-haiku-4-5-20251001")),
     ) as mocked:
         wrapper.complete_structured_chat(
             messages=[{"role": "user", "content": "hi"}],
@@ -176,6 +180,30 @@ def test_complete_structured_chat_uses_anthropic_key_for_claude(wrapper: LLMWrap
             model_override="claude-haiku-4-5-20251001",
         )
     assert mocked.call_args.kwargs["api_key"] == "fake-anthropic"
+
+
+def test_complete_structured_chat_reports_tokens_and_cost(wrapper: LLMWrapper) -> None:
+    """The meta dict carries provider usage and the priced cost so the per-turn
+    observation is not all zeros."""
+    from pydantic import BaseModel
+
+    class _Answer(BaseModel):
+        text: str
+
+    raw = _fake_completion(model="gpt-4o-mini", input_tokens=1_000_000, output_tokens=1_000_000)
+    with patch.object(
+        wrapper._instructor.chat.completions,
+        "create_with_completion",
+        return_value=(_Answer(text="ok"), raw),
+    ):
+        _, meta = wrapper.complete_structured_chat(
+            messages=[{"role": "user", "content": "hi"}],
+            response_model=_Answer,
+        )
+
+    assert meta["tokens_in"] == 1_000_000
+    assert meta["tokens_out"] == 1_000_000
+    assert meta["cost_usd"] == pytest.approx(0.75)
 
 
 # test_complete_stream_yields_chunks_and_caches was removed in Session 4 when

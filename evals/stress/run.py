@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import sys
 import time
 from collections.abc import Iterator
@@ -41,9 +42,15 @@ from app.schemas.estimation import TurnObservation
 from evals.stress.metrics import (
     CostBudgetMetric,
     LatencyBudgetMetric,
+    FactField,
     MemoryDriftMetric,
 )
-from evals.stress.scenarios import Scenario, ScenarioTurn, get_scenario
+from evals.stress.scenarios import (
+    CompetingFacts,
+    Scenario,
+    ScenarioTurn,
+    get_scenario,
+)
 
 
 _FIXTURES_DIR = Path(__file__).parent / "fixtures"
@@ -153,6 +160,7 @@ _CSV_COLUMNS = [
     "attachment_size_kb",
     "repeat",
     "turn_index",
+    "attempt",
     "session_id",
     "enriched_transcript_chars",
     "attachments_total_chars",
@@ -170,8 +178,51 @@ _CSV_COLUMNS = [
     "cost_budget_passed",
     "memory_drift_passed",
     "tracked_fact",
+    "facts_tracked",
+    "facts_recalled",
+    "fact_recall",
+    "old_fact_in",
+    "new_fact_in",
     "error",
 ]
+
+
+def _facts_before(scenario: Scenario, turn_number: int) -> list[tuple[str, FactField]]:
+    """Distinct (fact, field) pairs introduced in turns 1..turn_number-1."""
+    seen: dict[tuple[str, FactField], None] = {}
+    for earlier in scenario.turns[: turn_number - 1]:
+        if earlier.fact_introduced:
+            seen[(earlier.fact_introduced, earlier.fact_field)] = None
+    return list(seen)
+
+
+def _locate(snapshot: dict[str, Any], variants: tuple[str, ...]) -> str:
+    """``|``-joined locations (summary, anchors, metadata) holding any variant.
+
+    Locations the snapshot does not expose simply never match.
+    """
+    places = {
+        "summary": str(snapshot.get("summary") or ""),
+        "anchors": json.dumps(snapshot.get("anchors") or [], default=str),
+        "metadata": json.dumps(snapshot.get("metadata") or {}, default=str),
+    }
+    needles = [v.lower() for v in variants]
+    return "|".join(
+        name
+        for name, text in places.items()
+        if any(n in text.lower() for n in needles)
+    )
+
+
+def _competing_columns(
+    competing: CompetingFacts | None, turn_number: int, snapshot: dict[str, Any]
+) -> dict[str, str]:
+    if competing is None or turn_number < competing.introduced_at_turn:
+        return {"old_fact_in": "", "new_fact_in": ""}
+    return {
+        "old_fact_in": _locate(snapshot, competing.old),
+        "new_fact_in": _locate(snapshot, competing.new),
+    }
 
 
 def _run_one_session(
@@ -182,8 +233,14 @@ def _run_one_session(
     latency_metric: LatencyBudgetMetric,
     cost_metric: CostBudgetMetric,
     writer: csv.DictWriter,
+    turn_retries: int = 2,
 ) -> int:
-    """Walk the full scenario once. Returns rows written."""
+    """Walk the full scenario once. Returns rows written.
+
+    A failed turn is retried up to ``turn_retries`` extra times. The server
+    only appends a turn to the history after it succeeds, so re-sending the
+    same turn keeps the conversation consistent. Every attempt writes a row.
+    """
     files = _attachment_files(size_kb)
 
     create_resp = client.post("/sessions")
@@ -202,26 +259,43 @@ def _run_one_session(
     )
 
     rows_written = 0
-    for turn in scenario.turns:
+    for turn_number, turn in enumerate(scenario.turns, start=1):
         row: dict[str, Any] = {
             "scenario": scenario.name,
             "attachment_size_kb": size_kb,
             "repeat": repeat,
             "tracked_fact": tracked_fact or "",
         }
-        try:
-            observation, snapshot, wall_ms = _execute_turn(
-                client, session_id, scenario, turn, files
-            )
-        except Exception as exc:  # noqa: BLE001
-            row.update(
-                {
-                    "turn_index": "",
-                    "error": f"{type(exc).__name__}: {str(exc)[:200]}",
-                }
-            )
-            writer.writerow(row)
-            rows_written += 1
+        succeeded = False
+        for attempt in range(1, turn_retries + 2):
+            row["attempt"] = attempt
+            try:
+                observation, snapshot, wall_ms = _execute_turn(
+                    client, session_id, scenario, turn, files
+                )
+                succeeded = True
+                print(
+                    f"      turn {turn_number:>2}/{len(scenario.turns)} ok "
+                    f"attempt={attempt} {wall_ms / 1000:.1f}s "
+                    f"${observation.cost_usd:.4f}",
+                    flush=True,
+                )
+                break
+            except Exception as exc:  # noqa: BLE001
+                print(
+                    f"      turn {turn_number:>2}/{len(scenario.turns)} FAILED "
+                    f"attempt={attempt}: {type(exc).__name__}",
+                    flush=True,
+                )
+                row.update(
+                    {
+                        "turn_index": "",
+                        "error": f"{type(exc).__name__}: {str(exc)[:200]}",
+                    }
+                )
+                writer.writerow(row)
+                rows_written += 1
+        if not succeeded:
             # Aborting the rest of this session — a 5xx mid-conversation
             # would skew memory drift for later turns.
             break
@@ -235,9 +309,22 @@ def _run_one_session(
         else:
             drift_pass = bool(drift_metric.evaluate(snapshot).passed)
 
+        facts = _facts_before(scenario, turn_number)
+        recalled = sum(
+            1
+            for fact, fact_field in facts
+            if MemoryDriftMetric(fact=fact, fact_field=fact_field)
+            .evaluate(snapshot)
+            .passed
+        )
+
         row.update(
             {
                 **observation.model_dump(),
+                "facts_tracked": len(facts),
+                "facts_recalled": recalled,
+                "fact_recall": recalled / len(facts) if facts else "",
+                **_competing_columns(scenario.competing_facts, turn_number, snapshot),
                 "wall_clock_ms": wall_ms,
                 "latency_budget_passed": latency_pass,
                 "cost_budget_passed": cost_pass,
@@ -302,6 +389,13 @@ def main() -> int:
         help="Comma-separated PDF sizes in KB. 0 = no attachment.",
     )
     parser.add_argument("--repeats", type=int, default=3)
+    parser.add_argument(
+        "--turn-retries",
+        type=int,
+        default=2,
+        help="Extra attempts per turn after a failure (0 = abort the session "
+        "at the first error).",
+    )
     parser.add_argument("--latency-budget-ms", type=int, default=8000)
     parser.add_argument("--cost-budget-usd", type=float, default=0.02)
     parser.add_argument(
@@ -330,6 +424,8 @@ def main() -> int:
         f"{args.repeats} repeats × up to 20 turns each"
     )
     total_rows = 0
+    total_sessions = len(scenarios) * len(sizes) * args.repeats
+    session_number = 0
     t_start = time.perf_counter()
     with args.output.open("w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=_CSV_COLUMNS)
@@ -338,9 +434,12 @@ def main() -> int:
             for scenario in scenarios:
                 for size_kb in sizes:
                     for repeat in range(args.repeats):
+                        session_number += 1
                         print(
-                            f"  → {scenario.name:<14} kb={size_kb:>3} "
-                            f"repeat={repeat + 1}/{args.repeats}"
+                            f"  → session {session_number}/{total_sessions} "
+                            f"{scenario.name:<14} kb={size_kb:>3} "
+                            f"repeat={repeat + 1}/{args.repeats}",
+                            flush=True,
                         )
                         rows = _run_one_session(
                             client,
@@ -350,6 +449,7 @@ def main() -> int:
                             latency_metric,
                             cost_metric,
                             writer,
+                            args.turn_retries,
                         )
                         total_rows += rows
                         fh.flush()

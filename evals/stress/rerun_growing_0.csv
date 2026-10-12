@@ -1,0 +1,7 @@
+scenario,attachment_size_kb,repeat,turn_index,attempt,session_id,enriched_transcript_chars,attachments_total_chars,messages_in_window,anchors_count,summary_chars,tokens_in,tokens_out,cost_usd,latency_ms,wall_clock_ms,cache_hit_kind,last_resolved_tier,latency_budget_passed,cost_budget_passed,memory_drift_passed,tracked_fact,facts_tracked,facts_recalled,fact_recall,old_fact_in,new_fact_in,error
+growing,0,0,,1,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0f346dc6-6878-4be2-87f0-8656577fa8e8/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,0,0,,2,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0f346dc6-6878-4be2-87f0-8656577fa8e8/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"
+growing,0,0,,3,,,,,,,,,,,,,,,,,Nimbus,,,,,,"HTTPStatusError: Server error '502 Bad Gateway' for url 'http://localhost:8000/sessions/0f346dc6-6878-4be2-87f0-8656577fa8e8/estimate'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Stat"

@@ -47,12 +47,27 @@ class ScenarioTurn:
 
 
 @dataclass(frozen=True)
+class CompetingFacts:
+    """An old value that a later turn replaces with a new one.
+
+    ``old`` and ``new`` list spelling variants (matched case-insensitively).
+    The runner reports where each side appears once the replacement has been
+    stated, i.e. from ``introduced_at_turn`` (1-based) onwards.
+    """
+
+    old: tuple[str, ...]
+    new: tuple[str, ...]
+    introduced_at_turn: int
+
+
+@dataclass(frozen=True)
 class Scenario:
     name: Literal["growing", "pivot", "contradiction"]
     project_type: ProjectType
     detail_level: DetailLevel
     output_format: OutputFormat
     turns: list[ScenarioTurn] = field(default_factory=list)
+    competing_facts: CompetingFacts | None = None
 
     def __post_init__(self) -> None:
         if len(self.turns) < 20:
@@ -314,7 +329,7 @@ _CONTRADICTION_TURNS: list[ScenarioTurn] = [
     ),
     ScenarioTurn(
         "Budget cap announced: 30000 EUR for the whole engagement.",
-        fact_introduced="30",
+        fact_introduced="30000",
         fact_field="any",
     ),
     ScenarioTurn(
@@ -342,12 +357,12 @@ _CONTRADICTION_TURNS: list[ScenarioTurn] = [
     ScenarioTurn(
         "CONTRADICTION: leadership revised the budget upward. The new budget "
         "is 80000 EUR; the earlier 30000 figure is obsolete. Plan accordingly.",
-        fact_introduced="80",
+        fact_introduced="80000",
         fact_field="any",
     ),
     ScenarioTurn(
         "Confirmed new budget: 80000 EUR. The earlier 30k was a placeholder.",
-        fact_introduced="80",
+        fact_introduced="80000",
         fact_field="any",
     ),
     ScenarioTurn(
@@ -423,6 +438,9 @@ _SCENARIOS: dict[str, Scenario] = {
         detail_level=DetailLevel.MEDIUM,
         output_format=OutputFormat.PHASES_TABLE,
         turns=_PIVOT_TURNS,
+        competing_facts=CompetingFacts(
+            old=("React Native",), new=("Flutter",), introduced_at_turn=5
+        ),
     ),
     "contradiction": Scenario(
         name="contradiction",
@@ -430,6 +448,11 @@ _SCENARIOS: dict[str, Scenario] = {
         detail_level=DetailLevel.MEDIUM,
         output_format=OutputFormat.PHASES_TABLE,
         turns=_CONTRADICTION_TURNS,
+        competing_facts=CompetingFacts(
+            old=("30000", "30,000", "30.000", "30k"),
+            new=("80000", "80,000", "80.000", "80k"),
+            introduced_at_turn=8,
+        ),
     ),
 }
 

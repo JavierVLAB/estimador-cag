@@ -171,3 +171,6 @@ class Session(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_resolved_tier: str | None = None
     last_tier_rule: str | None = None
+    # Turns processed over the whole session. The history window is trimmed to
+    # ``max_turns``, so ``len(history.messages)`` cannot be used for this.
+    turns_processed: int = 0

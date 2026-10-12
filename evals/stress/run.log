@@ -1,0 +1,430 @@
+=== RUN A: memory (180 turns) ===
+Stress run: 3 scenarios × 1 sizes × 3 repeats × up to 20 turns each
+  → session 1/9 growing        kb=  0 repeat=1/3
+      turn  1/20 ok attempt=1 10.1s $0.0011
+      turn  2/20 ok attempt=1 7.0s $0.0013
+      turn  3/20 ok attempt=1 4.3s $0.0006
+      turn  4/20 ok attempt=1 11.8s $0.0027
+      turn  5/20 ok attempt=1 4.9s $0.0008
+      turn  6/20 FAILED attempt=1: HTTPStatusError
+      turn  6/20 ok attempt=2 8.2s $0.0018
+      turn  7/20 ok attempt=1 14.8s $0.0050
+      turn  8/20 ok attempt=1 16.9s $0.0051
+      turn  9/20 ok attempt=1 9.4s $0.0020
+      turn 10/20 ok attempt=1 11.9s $0.0020
+      turn 11/20 ok attempt=1 12.6s $0.0021
+      turn 12/20 FAILED attempt=1: HTTPStatusError
+      turn 12/20 ok attempt=2 11.9s $0.0021
+      turn 13/20 ok attempt=1 11.1s $0.0021
+      turn 14/20 ok attempt=1 11.6s $0.0022
+      turn 15/20 ok attempt=1 21.0s $0.0079
+      turn 16/20 ok attempt=1 10.1s $0.0010
+      turn 17/20 FAILED attempt=1: HTTPStatusError
+      turn 17/20 ok attempt=2 12.9s $0.0023
+      turn 18/20 ok attempt=1 16.0s $0.0022
+      turn 19/20 ok attempt=1 20.7s $0.0077
+      turn 20/20 FAILED attempt=1: HTTPStatusError
+      turn 20/20 FAILED attempt=2: HTTPStatusError
+      turn 20/20 ok attempt=3 11.5s $0.0021
+  → session 2/9 growing        kb=  0 repeat=2/3
+      turn  1/20 ok attempt=1 7.6s $0.0012
+      turn  2/20 ok attempt=1 9.4s $0.0013
+      turn  3/20 ok attempt=1 6.5s $0.0014
+      turn  4/20 ok attempt=1 9.9s $0.0027
+      turn  5/20 ok attempt=1 10.4s $0.0028
+      turn  6/20 ok attempt=1 7.3s $0.0018
+      turn  7/20 ok attempt=1 6.1s $0.0008
+      turn  8/20 ok attempt=1 9.8s $0.0019
+      turn  9/20 ok attempt=1 9.6s $0.0019
+      turn 10/20 ok attempt=1 6.1s $0.0009
+      turn 11/20 ok attempt=1 7.0s $0.0009
+      turn 12/20 ok attempt=1 7.1s $0.0009
+      turn 13/20 ok attempt=1 7.4s $0.0009
+      turn 14/20 ok attempt=1 8.3s $0.0009
+      turn 15/20 ok attempt=1 14.2s $0.0034
+      turn 16/20 ok attempt=1 9.1s $0.0009
+      turn 17/20 ok attempt=1 14.9s $0.0021
+      turn 18/20 ok attempt=1 6.9s $0.0008
+      turn 19/20 ok attempt=1 9.5s $0.0008
+      turn 20/20 ok attempt=1 10.3s $0.0009
+  → session 3/9 growing        kb=  0 repeat=3/3
+      turn  1/20 FAILED attempt=1: HTTPStatusError
+      turn  1/20 FAILED attempt=2: HTTPStatusError
+      turn  1/20 FAILED attempt=3: HTTPStatusError
+  → session 4/9 pivot          kb=  0 repeat=1/3
+      turn  1/20 FAILED attempt=1: HTTPStatusError
+      turn  1/20 ok attempt=2 2.3s $0.0004
+      turn  2/20 ok attempt=1 2.5s $0.0004
+      turn  3/20 FAILED attempt=1: HTTPStatusError
+      turn  3/20 ok attempt=2 2.4s $0.0004
+      turn  4/20 ok attempt=1 2.8s $0.0005
+      turn  5/20 ok attempt=1 2.7s $0.0005
+      turn  6/20 FAILED attempt=1: HTTPStatusError
+      turn  6/20 ok attempt=2 9.8s $0.0014
+      turn  7/20 ok attempt=1 7.8s $0.0016
+      turn  8/20 ok attempt=1 6.2s $0.0008
+      turn  9/20 ok attempt=1 8.9s $0.0017
+      turn 10/20 ok attempt=1 9.4s $0.0018
+      turn 11/20 ok attempt=1 9.2s $0.0019
+      turn 12/20 ok attempt=1 5.2s $0.0008
+      turn 13/20 ok attempt=1 6.1s $0.0009
+      turn 14/20 ok attempt=1 10.0s $0.0019
+      turn 15/20 ok attempt=1 5.2s $0.0007
+      turn 16/20 ok attempt=1 6.6s $0.0009
+      turn 17/20 ok attempt=1 7.4s $0.0009
+      turn 18/20 ok attempt=1 11.3s $0.0019
+      turn 19/20 ok attempt=1 8.9s $0.0009
+      turn 20/20 ok attempt=1 6.3s $0.0008
+  → session 5/9 pivot          kb=  0 repeat=2/3
+      turn  1/20 ok attempt=1 7.2s $0.0011
+      turn  2/20 FAILED attempt=1: HTTPStatusError
+      turn  2/20 FAILED attempt=2: HTTPStatusError
+      turn  2/20 ok attempt=3 2.4s $0.0004
+      turn  3/20 ok attempt=1 2.8s $0.0005
+      turn  4/20 ok attempt=1 2.3s $0.0005
+      turn  5/20 ok attempt=1 3.8s $0.0006
+      turn  6/20 ok attempt=1 3.7s $0.0007
+      turn  7/20 ok attempt=1 4.6s $0.0007
+      turn  8/20 ok attempt=1 5.5s $0.0007
+      turn  9/20 ok attempt=1 9.4s $0.0008
+      turn 10/20 ok attempt=1 7.4s $0.0008
+      turn 11/20 ok attempt=1 8.8s $0.0018
+      turn 12/20 ok attempt=1 4.9s $0.0007
+      turn 13/20 ok attempt=1 4.7s $0.0007
+      turn 14/20 ok attempt=1 5.8s $0.0008
+      turn 15/20 ok attempt=1 6.4s $0.0008
+      turn 16/20 ok attempt=1 7.5s $0.0008
+      turn 17/20 ok attempt=1 7.3s $0.0008
+      turn 18/20 ok attempt=1 8.2s $0.0008
+      turn 19/20 ok attempt=1 7.9s $0.0009
+      turn 20/20 ok attempt=1 8.2s $0.0009
+  → session 6/9 pivot          kb=  0 repeat=3/3
+      turn  1/20 FAILED attempt=1: HTTPStatusError
+      turn  1/20 ok attempt=2 6.7s $0.0011
+      turn  2/20 FAILED attempt=1: HTTPStatusError
+      turn  2/20 FAILED attempt=2: HTTPStatusError
+      turn  2/20 ok attempt=3 3.9s $0.0005
+      turn  3/20 FAILED attempt=1: HTTPStatusError
+      turn  3/20 ok attempt=2 6.3s $0.0014
+      turn  4/20 ok attempt=1 6.2s $0.0014
+      turn  5/20 ok attempt=1 3.9s $0.0007
+      turn  6/20 ok attempt=1 3.8s $0.0007
+      turn  7/20 ok attempt=1 5.2s $0.0008
+      turn  8/20 ok attempt=1 5.7s $0.0008
+      turn  9/20 ok attempt=1 6.5s $0.0008
+      turn 10/20 ok attempt=1 11.2s $0.0030
+      turn 11/20 ok attempt=1 7.3s $0.0008
+      turn 12/20 ok attempt=1 5.6s $0.0007
+      turn 13/20 ok attempt=1 7.3s $0.0008
+      turn 14/20 ok attempt=1 7.6s $0.0008
+      turn 15/20 ok attempt=1 8.5s $0.0008
+      turn 16/20 ok attempt=1 9.3s $0.0008
+      turn 17/20 ok attempt=1 8.9s $0.0008
+      turn 18/20 ok attempt=1 11.6s $0.0019
+      turn 19/20 ok attempt=1 9.2s $0.0009
+      turn 20/20 ok attempt=1 10.9s $0.0009
+  → session 7/9 contradiction  kb=  0 repeat=1/3
+      turn  1/20 FAILED attempt=1: HTTPStatusError
+      turn  1/20 FAILED attempt=2: HTTPStatusError
+      turn  1/20 FAILED attempt=3: HTTPStatusError
+  → session 8/9 contradiction  kb=  0 repeat=2/3
+      turn  1/20 FAILED attempt=1: HTTPStatusError
+      turn  1/20 ok attempt=2 7.3s $0.0011
+      turn  2/20 ok attempt=1 4.1s $0.0006
+      turn  3/20 ok attempt=1 3.6s $0.0006
+      turn  4/20 ok attempt=1 7.4s $0.0015
+      turn  5/20 ok attempt=1 8.0s $0.0017
+      turn  6/20 ok attempt=1 7.9s $0.0017
+      turn  7/20 ok attempt=1 6.6s $0.0008
+      turn  8/20 ok attempt=1 12.4s $0.0033
+      turn  9/20 ok attempt=1 9.0s $0.0009
+      turn 10/20 ok attempt=1 16.1s $0.0051
+      turn 11/20 ok attempt=1 7.4s $0.0009
+      turn 12/20 ok attempt=1 10.0s $0.0020
+      turn 13/20 ok attempt=1 7.1s $0.0009
+      turn 14/20 ok attempt=1 7.4s $0.0009
+      turn 15/20 ok attempt=1 7.4s $0.0009
+      turn 16/20 ok attempt=1 10.8s $0.0020
+      turn 17/20 FAILED attempt=1: HTTPStatusError
+      turn 17/20 ok attempt=2 8.4s $0.0009
+      turn 18/20 ok attempt=1 17.6s $0.0050
+      turn 19/20 ok attempt=1 8.8s $0.0009
+      turn 20/20 ok attempt=1 9.3s $0.0009
+  → session 9/9 contradiction  kb=  0 repeat=3/3
+      turn  1/20 ok attempt=1 6.7s $0.0011
+      turn  2/20 ok attempt=1 3.6s $0.0005
+      turn  3/20 ok attempt=1 3.7s $0.0006
+      turn  4/20 ok attempt=1 6.7s $0.0015
+      turn  5/20 FAILED attempt=1: HTTPStatusError
+      turn  5/20 FAILED attempt=2: HTTPStatusError
+      turn  5/20 ok attempt=3 7.1s $0.0016
+      turn  6/20 ok attempt=1 7.4s $0.0017
+      turn  7/20 ok attempt=1 19.7s $0.0071
+      turn  8/20 FAILED attempt=1: HTTPStatusError
+      turn  8/20 ok attempt=2 16.3s $0.0052
+      turn  9/20 ok attempt=1 6.3s $0.0009
+      turn 10/20 FAILED attempt=1: HTTPStatusError
+      turn 10/20 ok attempt=2 22.3s $0.0080
+      turn 11/20 ok attempt=1 24.4s $0.0082
+      turn 12/20 FAILED attempt=1: HTTPStatusError
+      turn 12/20 ok attempt=2 22.8s $0.0060
+      turn 13/20 ok attempt=1 18.9s $0.0062
+      turn 14/20 FAILED attempt=1: HTTPStatusError
+      turn 14/20 ok attempt=2 12.3s $0.0025
+      turn 15/20 ok attempt=1 8.0s $0.0012
+      turn 16/20 FAILED attempt=1: HTTPStatusError
+      turn 16/20 ok attempt=2 18.1s $0.0043
+      turn 17/20 ok attempt=1 8.5s $0.0012
+      turn 18/20 ok attempt=1 13.3s $0.0027
+      turn 19/20 ok attempt=1 8.6s $0.0012
+      turn 20/20 ok attempt=1 8.7s $0.0012
+
+Wrote 169 rows to evals/stress/results_memory.csv in 1792s
+
+Summary (per scenario × attachment size)
+scenario         kb    n   P50 ms   P95 ms      tot $  drift%
+-------------------------------------------------------------
+contradiction     0   40     5430    19070     0.0960  100.0%
+growing           0   40     5830    13691     0.0832  100.0%
+pivot             0   60     2648     6079     0.0576  100.0%
+=== RUN B: attachments (80 turns) ===
+Stress run: 1 scenarios × 4 sizes × 1 repeats × up to 20 turns each
+  → session 1/4 growing        kb=  5 repeat=1/1
+      turn  1/20 FAILED attempt=1: HTTPStatusError
+      turn  1/20 ok attempt=2 16.9s $0.0061
+      turn  2/20 ok attempt=1 4.5s $0.0009
+      turn  3/20 ok attempt=1 7.8s $0.0024
+      turn  4/20 ok attempt=1 5.1s $0.0013
+      turn  5/20 ok attempt=1 10.2s $0.0051
+      turn  6/20 ok attempt=1 8.3s $0.0036
+      turn  7/20 FAILED attempt=1: HTTPStatusError
+      turn  7/20 FAILED attempt=2: HTTPStatusError
+      turn  7/20 ok attempt=3 12.8s $0.0063
+      turn  8/20 ok attempt=1 7.5s $0.0019
+      turn  9/20 FAILED attempt=1: HTTPStatusError
+      turn  9/20 ok attempt=2 8.7s $0.0019
+      turn 10/20 ok attempt=1 15.4s $0.0091
+      turn 11/20 ok attempt=1 9.8s $0.0040
+      turn 12/20 ok attempt=1 7.6s $0.0019
+      turn 13/20 FAILED attempt=1: HTTPStatusError
+      turn 13/20 ok attempt=2 8.3s $0.0019
+      turn 14/20 FAILED attempt=1: HTTPStatusError
+      turn 14/20 ok attempt=2 8.9s $0.0020
+      turn 15/20 ok attempt=1 9.1s $0.0020
+      turn 16/20 ok attempt=1 10.0s $0.0020
+      turn 17/20 ok attempt=1 11.5s $0.0020
+      turn 18/20 ok attempt=1 8.7s $0.0020
+      turn 19/20 ok attempt=1 9.5s $0.0020
+      turn 20/20 ok attempt=1 9.2s $0.0020
+  → session 2/4 growing        kb= 20 repeat=1/1
+      turn  1/20 FAILED attempt=1: HTTPStatusError
+      turn  1/20 FAILED attempt=2: HTTPStatusError
+      turn  1/20 FAILED attempt=3: HTTPStatusError
+  → session 3/4 growing        kb= 50 repeat=1/1
+      turn  1/20 FAILED attempt=1: HTTPStatusError
+      turn  1/20 FAILED attempt=2: HTTPStatusError
+      turn  1/20 ok attempt=3 8.8s $0.0039
+      turn  2/20 ok attempt=1 9.0s $0.0068
+      turn  3/20 FAILED attempt=1: HTTPStatusError
+      turn  3/20 FAILED attempt=2: HTTPStatusError
+      turn  3/20 FAILED attempt=3: HTTPStatusError
+  → session 4/4 growing        kb=100 repeat=1/1
+      turn  1/20 FAILED attempt=1: HTTPStatusError
+      turn  1/20 ok attempt=2 18.2s $0.0131
+      turn  2/20 ok attempt=1 10.3s $0.0118
+      turn  3/20 ok attempt=1 5.9s $0.0054
+      turn  4/20 ok attempt=1 6.0s $0.0070
+      turn  5/20 ok attempt=1 6.8s $0.0086
+      turn  6/20 FAILED attempt=1: HTTPStatusError
+      turn  6/20 ok attempt=2 11.8s $0.0315
+      turn  7/20 FAILED attempt=1: HTTPStatusError
+      turn  7/20 ok attempt=2 14.7s $0.0363
+      turn  8/20 ok attempt=1 13.4s $0.0240
+      turn  9/20 ok attempt=1 12.4s $0.0119
+      turn 10/20 FAILED attempt=1: HTTPStatusError
+      turn 10/20 ok attempt=2 20.6s $0.0364
+      turn 11/20 ok attempt=1 14.7s $0.0120
+      turn 12/20 ok attempt=1 12.8s $0.0119
+      turn 13/20 ok attempt=1 12.2s $0.0119
+      turn 14/20 ok attempt=1 16.1s $0.0119
+      turn 15/20 ok attempt=1 18.4s $0.0120
+      turn 16/20 ok attempt=1 12.1s $0.0120
+      turn 17/20 ok attempt=1 11.3s $0.0120
+      turn 18/20 ok attempt=1 26.8s $0.0120
+      turn 19/20 ok attempt=1 13.1s $0.0120
+      turn 20/20 ok attempt=1 21.5s $0.0120
+
+Wrote 60 rows to evals/stress/results_attachments.csv in 836s
+
+Summary (per scenario × attachment size)
+scenario         kb    n   P50 ms   P95 ms      tot $  drift%
+-------------------------------------------------------------
+growing         100   20     7537    16340     0.3056  100.0%
+growing           5   20     3354    10970     0.0603  100.0%
+growing          50    2     6324     6122     0.0106  100.0%
+=== ALL DONE ===
+=== RERUN aborted sessions ===
+Stress run: 1 scenarios × 1 sizes × 1 repeats × up to 20 turns each
+  → session 1/1 growing        kb=  0 repeat=1/1
+      turn  1/20 FAILED attempt=1: HTTPStatusError
+      turn  1/20 FAILED attempt=2: HTTPStatusError
+      turn  1/20 FAILED attempt=3: HTTPStatusError
+
+Wrote 3 rows to evals/stress/rerun_growing_0.csv in 51s
+
+Summary (per scenario × attachment size)
+scenario         kb    n   P50 ms   P95 ms      tot $  drift%
+-------------------------------------------------------------
+Stress run: 1 scenarios × 1 sizes × 1 repeats × up to 20 turns each
+  → session 1/1 contradiction  kb=  0 repeat=1/1
+      turn  1/20 ok attempt=1 2.4s $0.0004
+      turn  2/20 ok attempt=1 2.6s $0.0004
+      turn  3/20 ok attempt=1 2.8s $0.0004
+      turn  4/20 FAILED attempt=1: HTTPStatusError
+      turn  4/20 ok attempt=2 16.0s $0.0053
+      turn  5/20 ok attempt=1 12.3s $0.0039
+      turn  6/20 FAILED attempt=1: HTTPStatusError
+      turn  6/20 ok attempt=2 7.4s $0.0016
+      turn  7/20 ok attempt=1 9.2s $0.0017
+      turn  8/20 FAILED attempt=1: HTTPStatusError
+      turn  8/20 ok attempt=2 5.2s $0.0008
+      turn  9/20 FAILED attempt=1: HTTPStatusError
+      turn  9/20 ok attempt=2 22.0s $0.0099
+      turn 10/20 ok attempt=1 6.3s $0.0009
+      turn 11/20 ok attempt=1 6.8s $0.0009
+      turn 12/20 ok attempt=1 6.8s $0.0009
+      turn 13/20 ok attempt=1 9.9s $0.0020
+      turn 14/20 ok attempt=1 7.6s $0.0009
+      turn 15/20 ok attempt=1 8.2s $0.0010
+      turn 16/20 ok attempt=1 14.6s $0.0035
+      turn 17/20 ok attempt=1 7.6s $0.0010
+      turn 18/20 ok attempt=1 18.0s $0.0054
+      turn 19/20 ok attempt=1 17.3s $0.0036
+      turn 20/20 ok attempt=1 12.8s $0.0010
+
+Wrote 24 rows to evals/stress/rerun_contradiction_0.csv in 273s
+
+Summary (per scenario × attachment size)
+scenario         kb    n   P50 ms   P95 ms      tot $  drift%
+-------------------------------------------------------------
+contradiction     0   20     3813    13765     0.0454  100.0%
+Stress run: 1 scenarios × 1 sizes × 1 repeats × up to 20 turns each
+  → session 1/1 growing        kb= 20 repeat=1/1
+      turn  1/20 FAILED attempt=1: HTTPStatusError
+      turn  1/20 FAILED attempt=2: HTTPStatusError
+      turn  1/20 FAILED attempt=3: HTTPStatusError
+
+Wrote 3 rows to evals/stress/rerun_growing_20.csv in 66s
+
+Summary (per scenario × attachment size)
+scenario         kb    n   P50 ms   P95 ms      tot $  drift%
+-------------------------------------------------------------
+Stress run: 1 scenarios × 1 sizes × 1 repeats × up to 20 turns each
+  → session 1/1 growing        kb= 50 repeat=1/1
+      turn  1/20 FAILED attempt=1: HTTPStatusError
+      turn  1/20 ok attempt=2 18.2s $0.0089
+      turn  2/20 ok attempt=1 5.4s $0.0033
+      turn  3/20 FAILED attempt=1: HTTPStatusError
+      turn  3/20 ok attempt=2 4.7s $0.0047
+      turn  4/20 FAILED attempt=1: HTTPStatusError
+      turn  4/20 FAILED attempt=2: HTTPStatusError
+      turn  4/20 ok attempt=3 4.8s $0.0061
+      turn  5/20 ok attempt=1 9.5s $0.0075
+      turn  6/20 ok attempt=1 9.8s $0.0180
+      turn  7/20 FAILED attempt=1: HTTPStatusError
+      turn  7/20 ok attempt=2 10.6s $0.0208
+      turn  8/20 ok attempt=1 20.3s $0.0104
+      turn  9/20 ok attempt=1 15.7s $0.0103
+      turn 10/20 ok attempt=1 9.5s $0.0104
+      turn 11/20 ok attempt=1 9.6s $0.0104
+      turn 12/20 ok attempt=1 10.3s $0.0104
+      turn 13/20 ok attempt=1 12.9s $0.0209
+      turn 14/20 ok attempt=1 10.2s $0.0104
+      turn 15/20 ok attempt=1 22.5s $0.0104
+      turn 16/20 ok attempt=1 22.8s $0.0104
+      turn 17/20 ok attempt=1 12.2s $0.0104
+      turn 18/20 FAILED attempt=1: HTTPStatusError
+      turn 18/20 ok attempt=2 8.3s $0.0104
+      turn 19/20 ok attempt=1 19.4s $0.0104
+      turn 20/20 ok attempt=1 19.4s $0.0104
+
+Wrote 26 rows to evals/stress/rerun_growing_50.csv in 370s
+
+Summary (per scenario × attachment size)
+scenario         kb    n   P50 ms   P95 ms      tot $  drift%
+-------------------------------------------------------------
+growing          50   20     7699    17383     0.2148  100.0%
+=== RERUN DONE ===
+=== RERUN 2 (turn-retries 5) ===
+Stress run: 1 scenarios × 1 sizes × 1 repeats × up to 20 turns each
+  → session 1/1 growing        kb=  0 repeat=1/1
+      turn  1/20 FAILED attempt=1: HTTPStatusError
+      turn  1/20 FAILED attempt=2: HTTPStatusError
+      turn  1/20 FAILED attempt=3: HTTPStatusError
+      turn  1/20 FAILED attempt=4: HTTPStatusError
+      turn  1/20 ok attempt=5 9.4s $0.0021
+      turn  2/20 ok attempt=1 7.1s $0.0014
+      turn  3/20 ok attempt=1 12.4s $0.0041
+      turn  4/20 FAILED attempt=1: HTTPStatusError
+      turn  4/20 FAILED attempt=2: HTTPStatusError
+      turn  4/20 FAILED attempt=3: HTTPStatusError
+      turn  4/20 FAILED attempt=4: HTTPStatusError
+      turn  4/20 ok attempt=5 16.1s $0.0061
+      turn  5/20 ok attempt=1 4.5s $0.0007
+      turn  6/20 FAILED attempt=1: HTTPStatusError
+      turn  6/20 FAILED attempt=2: HTTPStatusError
+      turn  6/20 FAILED attempt=3: HTTPStatusError
+      turn  6/20 ok attempt=4 4.9s $0.0008
+      turn  7/20 ok attempt=1 6.6s $0.0009
+      turn  8/20 ok attempt=1 6.8s $0.0009
+      turn  9/20 ok attempt=1 8.1s $0.0009
+      turn 10/20 ok attempt=1 8.1s $0.0009
+      turn 11/20 ok attempt=1 14.2s $0.0033
+      turn 12/20 ok attempt=1 13.5s $0.0020
+      turn 13/20 ok attempt=1 9.6s $0.0009
+      turn 14/20 ok attempt=1 10.8s $0.0009
+      turn 15/20 ok attempt=1 7.6s $0.0009
+      turn 16/20 ok attempt=1 8.6s $0.0009
+      turn 17/20 ok attempt=1 9.2s $0.0009
+      turn 18/20 ok attempt=1 9.1s $0.0008
+      turn 19/20 ok attempt=1 6.6s $0.0008
+      turn 20/20 ok attempt=1 10.2s $0.0009
+
+Wrote 31 rows to evals/stress/rerun2_growing_0.csv in 376s
+
+Summary (per scenario × attachment size)
+scenario         kb    n   P50 ms   P95 ms      tot $  drift%
+-------------------------------------------------------------
+growing           0   20     3027    11237     0.0311  100.0%
+Stress run: 1 scenarios × 1 sizes × 1 repeats × up to 20 turns each
+  → session 1/1 growing        kb= 20 repeat=1/1
+      turn  1/20 ok attempt=1 7.6s $0.0023
+      turn  2/20 FAILED attempt=1: HTTPStatusError
+      turn  2/20 ok attempt=2 4.9s $0.0017
+      turn  3/20 ok attempt=1 13.6s $0.0104
+      turn  4/20 ok attempt=1 6.3s $0.0029
+      turn  5/20 FAILED attempt=1: HTTPStatusError
+      turn  5/20 ok attempt=2 5.6s $0.0035
+      turn  6/20 ok attempt=1 12.8s $0.0129
+      turn  7/20 ok attempt=1 12.1s $0.0095
+      turn  8/20 ok attempt=1 9.1s $0.0047
+      turn  9/20 ok attempt=1 9.4s $0.0047
+      turn 10/20 ok attempt=1 9.4s $0.0047
+      turn 11/20 ok attempt=1 10.3s $0.0047
+      turn 12/20 ok attempt=1 9.7s $0.0047
+      turn 13/20 ok attempt=1 11.5s $0.0047
+      turn 14/20 ok attempt=1 13.3s $0.0048
+      turn 15/20 ok attempt=1 9.2s $0.0047
+      turn 16/20 ok attempt=1 9.4s $0.0047
+      turn 17/20 ok attempt=1 9.9s $0.0047
+      turn 18/20 ok attempt=1 13.0s $0.0047
+      turn 19/20 ok attempt=1 10.2s $0.0048
+      turn 20/20 ok attempt=1 11.4s $0.0048
+
+Wrote 22 rows to evals/stress/rerun2_growing_20.csv in 242s
+
+Summary (per scenario × attachment size)
+scenario         kb    n   P50 ms   P95 ms      tot $  drift%
+-------------------------------------------------------------
+growing          20   20     3500     9684     0.1048  100.0%
+=== RERUN 2 DONE ===
