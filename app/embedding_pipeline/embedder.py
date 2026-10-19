@@ -33,7 +33,7 @@ class OpenAIEmbedder:
         self._sleep = sleep
         self._rate_limit_error = rate_limit_error
 
-    def embed(self, chunks: list[Chunk]) -> list[EmbeddedChunk]:
+    def embed_many(self, chunks: list[Chunk]) -> list[EmbeddedChunk]:
         """Return provider vectors paired with their original chunk data."""
         if self._client is None:
             raise RuntimeError("OpenAI embedding client is not configured")
@@ -57,6 +57,20 @@ class OpenAIEmbedder:
                 latency_ms=round((perf_counter() - started_at) * 1000, 2),
             )
         return embedded_chunks
+
+    def embed(self, chunks: list[Chunk]) -> list[EmbeddedChunk]:
+        """Backward-compatible alias for embedding structured chunks."""
+        return self.embed_many(chunks)
+
+    def embed_one(self, text: str) -> list[float]:
+        """Return the provider vector for one standalone text input."""
+        if self._client is None:
+            raise RuntimeError("OpenAI embedding client is not configured")
+
+        vectors = self._vectors_in_input_order(self._create_embeddings([text]))
+        if len(vectors) != 1:
+            raise RuntimeError("OpenAI returned an embedding count that does not match the input")
+        return vectors[0]
 
     @staticmethod
     def estimate_cost_usd(total_tokens: int) -> float:

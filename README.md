@@ -207,3 +207,42 @@ El cliente Rails (`estimator-web/`) se adaptó al flujo conversacional con un nu
 ---
 
 > Este proyecto forma parte del **Master en AI Engineering** y es la base sobre la que se construye en directo el resto de la Sesión 04 (output estructurado, guardrails, cache semántico) y de la Sesión 05 (compresión avanzada de memoria con anclas, tier dinámico, patrón Actor-Critic-Boss).
+
+---
+
+## Sesión 07 — Embeddings de presupuestos
+
+El endpoint `POST /embeddings/ingest` transforma presupuestos históricos
+normalizados en un chunk contextualizado por componente y devuelve sus vectores en
+memoria. No escribe en una base de datos ni activa recuperación semántica. Requiere
+`OPENAI_API_KEY`, porque usa `text-embedding-3-small`.
+
+Con el servicio levantado, envía un cuerpo que cumpla el contrato `Budget`:
+
+```bash
+curl -X POST http://localhost:8000/embeddings/ingest \
+  -H "Content-Type: application/json" \
+  -d '{"budgets": [{"budget_id": "BUD-001", "client_metadata": {"name": "Acme", "sector": "retail", "country": "ES"}, "project_summary": "Tienda online", "main_technology": "python", "year": 2026, "total_estimated_hours": 40, "components": [{"component_id": "SHOP-001", "name": "Catálogo", "description": "API de productos", "tech_stack": ["python", "fastapi"], "estimated_hours": 40, "complexity": "medium"}]}]}'
+```
+
+### Comparar dos textos
+
+El script reutiliza `OpenAIEmbedder` y muestra ambos textos junto con su similitud
+coseno. Debe ejecutarse con una clave OpenAI configurada; las pruebas no hacen
+llamadas externas.
+
+Dentro del contenedor:
+
+```bash
+docker compose exec estimator python scripts/compare.py \
+  --text-a "API de catálogo para una tienda" \
+  --text-b "Servicio de productos de ecommerce"
+```
+
+En local, después de `uv sync` y de exportar `OPENAI_API_KEY`:
+
+```bash
+uv run python scripts/compare.py \
+  --text-a "API de catálogo para una tienda" \
+  --text-b "Servicio de productos de ecommerce"
+```

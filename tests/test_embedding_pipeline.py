@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from pathlib import Path
 
 import pytest
 import tiktoken
@@ -9,6 +10,7 @@ from app.embedding_pipeline.embedder import OpenAIEmbedder
 from app.embedding_pipeline.router import get_embedder
 from app.embedding_pipeline.schemas import Budget, Chunk, EmbeddedChunk
 from app.main import app
+from scripts.compare import cosine_similarity, main as compare_main
 
 
 def _budget() -> Budget:
@@ -127,6 +129,13 @@ def test_embedder_batches_chunks_and_preserves_chunk_order() -> None:
     assert embedded[100].metadata["component_id"] == "100"
 
 
+def test_embedder_exposes_single_and_many_chunk_embedding_methods() -> None:
+    embedder = OpenAIEmbedder(_FakeClient())
+
+    assert embedder.embed_one("a standalone text") == [0.0, 1.0]
+    assert [chunk.chunk_id for chunk in embedder.embed_many(_chunks(1))] == ["budget::0"]
+
+
 def test_embedder_retries_only_rate_limits_with_exponential_backoff() -> None:
     class FakeRateLimitError(Exception):
         pass
@@ -207,3 +216,36 @@ def test_ingest_endpoint_keeps_fastapi_validation_errors() -> None:
         response = client.post("/embeddings/ingest", json={"budgets": []})
 
     assert response.status_code == 422
+
+
+def test_compare_cli_prints_both_inputs_and_standard_library_cosine(capsys: pytest.CaptureFixture[str]) -> None:
+    class FakeEmbedder:
+        def __init__(self) -> None:
+            self.inputs: list[str] = []
+
+        def embed_one(self, text: str) -> list[float]:
+            self.inputs.append(text)
+            return {"first text": [1.0, 0.0], "second text": [0.5, 0.5]}[text]
+
+    embedder = FakeEmbedder()
+
+    assert compare_main(["--text-a", "first text", "--text-b", "second text"], embedder=embedder) == 0
+    assert embedder.inputs == ["first text", "second text"]
+    assert capsys.readouterr().out == (
+        "Text A: first text\nText B: second text\nCosine similarity: 0.707107\n"
+    )
+
+
+def test_cosine_similarity_rejects_zero_and_mismatched_vectors() -> None:
+    with pytest.raises(ValueError, match="same dimension"):
+        cosine_similarity([1.0], [1.0, 2.0])
+    with pytest.raises(ValueError, match="non-zero"):
+        cosine_similarity([0.0], [1.0])
+
+
+def test_readme_documents_embedding_endpoint_and_cli_commands() -> None:
+    readme = Path("README.md").read_text(encoding="utf-8")
+
+    assert "POST /embeddings/ingest" in readme
+    assert "docker compose exec estimator python scripts/compare.py" in readme
+    assert "uv run python scripts/compare.py" in readme
