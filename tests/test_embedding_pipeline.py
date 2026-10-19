@@ -1,5 +1,7 @@
 from types import SimpleNamespace
 from pathlib import Path
+import subprocess
+import sys
 
 import pytest
 import tiktoken
@@ -241,6 +243,18 @@ def test_cosine_similarity_rejects_zero_and_mismatched_vectors() -> None:
         cosine_similarity([1.0], [1.0, 2.0])
     with pytest.raises(ValueError, match="non-zero"):
         cosine_similarity([0.0], [1.0])
+
+
+def test_compare_script_runs_directly_for_help() -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/compare.py", "--help"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "--text-a" in result.stdout
 
 
 def test_readme_documents_embedding_endpoint_and_cli_commands() -> None:

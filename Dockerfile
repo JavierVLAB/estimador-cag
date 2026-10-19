@@ -40,6 +40,8 @@ COPY --from=builder /app/.venv /app/.venv
 
 # Copy application source code.
 COPY app/ /app/app/
+# Keep the documented embedding comparison CLI available in the runtime image.
+COPY scripts/ /app/scripts/
 
 # Ensure the non-root user owns everything it needs to run.
 RUN chown -R appuser:appgroup /app

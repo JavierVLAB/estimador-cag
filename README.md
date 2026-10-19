@@ -229,7 +229,7 @@ curl -X POST http://localhost:8000/embeddings/ingest \
 
 El script reutiliza `OpenAIEmbedder` y muestra ambos textos junto con su similitud
 coseno. Debe ejecutarse con una clave OpenAI configurada; las pruebas no hacen
-llamadas externas.
+llamadas externas. Ejecuta estos comandos desde la raíz del repositorio.
 
 Dentro del contenedor:
 
