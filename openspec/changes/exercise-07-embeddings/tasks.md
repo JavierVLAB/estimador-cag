@@ -4,8 +4,9 @@
   Pydantic models for normalized budgets, chunks, embeddings, and ingestion payloads.
 - [x] 1.2 Implement `JSONStructuralChunker` with one contextualized, token-counted
   chunk per budget component and the specified filterable metadata.
-- [ ] 1.3 Add the course-provided `data/budgets_sample.json` and validate that its
-  records conform to the ingestion contract.
+- [x] 1.3 Add the course-provided `data/budgets_sample.json` and validate that its
+  records conform to the ingestion contract (15 budgets and 52 components validated
+  locally with `Budget.model_validate`; live HTTP ingestion remains part of 3.2).
 
 ## 2. Embedding ingestion
 

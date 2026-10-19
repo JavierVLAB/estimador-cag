@@ -20,9 +20,10 @@ retrieval work.
   course evidence required by OpenSpec change `exercise-07-embeddings`.
 - Excluded: Streamlit/Rails, current estimation/session behavior, vector databases,
   retrieval, alternate chunkers, provider/model comparison, and enrichment LLMs.
-- Dataset: the official `data/budgets_sample.json` is absent; do not invent or
-  represent a substitute as course-provided data. Continue independently runnable
-  work and leave dataset-dependent validation pending.
+- Dataset: the official `data/budgets_sample.json` was imported from the course
+  branch `session_07`. Its SHA-256 is
+  `64c2a2372a3cf30c55fcc8d7aaf04c73b9caea64dcb474348eeb6d5253970392`.
+  Do not replace it with an invented substitute.
 - External OpenAI invocations are not authorized by this local implementation request;
   do not run the live sanity checks without explicit destination, operation, and
   credential-session authorization.
@@ -51,9 +52,12 @@ retrieval work.
 - [x] T3 — Implement the reusable cosine-similarity CLI and update README execution
   instructions. Route: delegated. Trigger: writer (CLI, docs, tests). Checks: strict
   TDD RED/GREEN for CLI math/arguments; focused pytest. Estimated 90 lines.
-- [ ] T4 — Add the official course sample dataset and validate it against the API
-  contract. Route: delegated after the data source is supplied. Trigger: data input
-  unavailable. Checks: schema validation and endpoint invocation. Estimated 30 lines.
+- [x] T4 — Add the official course sample dataset and validate it against the input
+  contract. Route: delegated. Trigger: data source supplied after prior external
+  review. Checks: `Budget.model_validate` observed for all records (15 budgets, 52
+  components); focused and full offline pytest passed. The live endpoint was not
+  invoked because it would call OpenAI; that verification remains under T5. Commit:
+  `1258273 feat(embeddings): add course budget dataset`.
 - [ ] T5 — Run the three specified live OpenAI comparisons and record
   `SANITY_CHECK.md`. Route: delegated after explicit remote-operation authorization
   and an authorized credential session. Trigger: external operation authorization.
@@ -67,8 +71,8 @@ retrieval work.
   specified exponential waits.
 - The CLI prints two inputs and their standard-library cosine similarity.
 - Existing test suite passes and new focused tests show observed RED then GREEN.
-- Dataset and live-sanity items remain honestly pending until their prerequisites are
-  supplied and authorized.
+- The official dataset is present and schema-validated; live OpenAI sanity checks
+  remain pending until their explicit remote-operation authorization is supplied.
 
 ## Progress and evidence
 
@@ -102,9 +106,17 @@ retrieval work.
   missing course dataset and external-operation authorization. The four native review
   lenses (risk, resilience, readability, reliability) found no issues and were
   acknowledged as approved; reviewed boundary: `c4efae9`.
+- 2026-10-19: T4 delegated after the official course branch was supplied. The exact
+  `data/budgets_sample.json` was imported with SHA-256
+  `64c2a2372a3cf30c55fcc8d7aaf04c73b9caea64dcb474348eeb6d5253970392`.
+  Local schema validation observed 15 budgets and 52 components; focused pytest
+  reported `12 passed`, full pytest `209 passed`, and `git diff --check` passed.
+  No live endpoint call occurred because that would invoke OpenAI. Commit `1258273
+  feat(embeddings): add course budget dataset`. The native reliability review found
+  no defects and was acknowledged as approved.
 
 ## Next step
 
-Await the course-provided dataset and explicit authorization for live OpenAI use;
-then complete T4 and T5. Docker rebuild/Swagger verification remain pending as the
+Await explicit authorization for the live OpenAI operation and credential session;
+then complete T5. Docker rebuild/Swagger verification remain pending as the
 corresponding local runtime check.
