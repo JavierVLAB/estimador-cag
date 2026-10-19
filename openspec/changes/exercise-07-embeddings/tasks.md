@@ -18,7 +18,7 @@
 
 ## 3. CLI, evidence, and documentation
 
-- [ ] 3.1 Add `scripts/compare.py` using the shared embedder and standard-library
+- [x] 3.1 Add `scripts/compare.py` using the shared embedder and standard-library
   cosine similarity.
 - [ ] 3.2 Execute the three prescribed live comparisons and record their numeric
   output and interpretation in `app/embedding_pipeline/SANITY_CHECK.md`.

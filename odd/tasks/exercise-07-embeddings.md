@@ -48,7 +48,7 @@ retrieval work.
   endpoint, including error mapping and router registration. Route: delegated.
   Trigger: writer (embedder, router, app composition, tests). Checks: strict TDD
   RED/GREEN with provider fakes; focused pytest. Estimated 160 lines.
-- [ ] T3 — Implement the reusable cosine-similarity CLI and update README execution
+- [x] T3 — Implement the reusable cosine-similarity CLI and update README execution
   instructions. Route: delegated. Trigger: writer (CLI, docs, tests). Checks: strict
   TDD RED/GREEN for CLI math/arguments; focused pytest. Estimated 90 lines.
 - [ ] T4 — Add the official course sample dataset and validate it against the API
@@ -92,8 +92,19 @@ retrieval work.
   and offline provider fakes. The accumulated RDD candidate (797 lines) was reviewed
   by the native reliability lens with no findings and acknowledged as approved;
   reviewed boundary: `3c5a413`.
+- 2026-10-19: T3 delegated under strict TDD. Observed RED: focused tests first failed
+  because the `scripts` package did not exist, then because README lacked the
+  ingestion endpoint instructions. GREEN: `12 passed` focused and `209 passed` for
+  `uv run pytest -q`; Ruff and `git diff --check` passed. Commit `c4efae9
+  feat(embeddings): add similarity comparison CLI` adds `compare.py`, the public
+  `embed_one`/`embed_many` adapter methods, tests, and local/Docker usage docs.
+  Runtime Docker and live OpenAI checks were not run: they remain blocked by the
+  missing course dataset and external-operation authorization. The four native review
+  lenses (risk, resilience, readability, reliability) found no issues and were
+  acknowledged as approved; reviewed boundary: `c4efae9`.
 
 ## Next step
 
-Delegate T3 CLI and README documentation under strict TDD. Dataset and live OpenAI
-sanity checks stay pending on their documented prerequisites.
+Await the course-provided dataset and explicit authorization for live OpenAI use;
+then complete T4 and T5. Docker rebuild/Swagger verification remain pending as the
+corresponding local runtime check.
