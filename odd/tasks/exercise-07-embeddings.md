@@ -61,8 +61,8 @@ retrieval work.
 - [x] T5 — Run the three specified live OpenAI comparisons and record
   `SANITY_CHECK.md`. Route: delegated after explicit remote-operation authorization
   and an authorized credential session. Trigger: external operation authorization.
-  Checks: all three outputs recorded with interpretation. Commit: pending this task's
-  documentation commit. Estimated 20 lines.
+  Checks: all three outputs recorded with interpretation. Evidence commit:
+  `f04c3d6 docs(embeddings): record live sanity check`. Estimated 20 lines.
 
 ## Acceptance criteria
 
