@@ -24,9 +24,9 @@ retrieval work.
   branch `session_07`. Its SHA-256 is
   `64c2a2372a3cf30c55fcc8d7aaf04c73b9caea64dcb474348eeb6d5253970392`.
   Do not replace it with an invented substitute.
-- External OpenAI invocations are not authorized by this local implementation request;
-  do not run the live sanity checks without explicit destination, operation, and
-  credential-session authorization.
+- The three prescribed OpenAI comparisons were authorized and completed with the
+  configured local credential; do not make further provider calls outside that
+  recorded scope without explicit authorization.
 
 ## Delivery and TDD
 
@@ -63,6 +63,14 @@ retrieval work.
   and an authorized credential session. Trigger: external operation authorization.
   Checks: all three outputs recorded with interpretation. Evidence commit:
   `f04c3d6 docs(embeddings): record live sanity check`. Estimated 20 lines.
+- [ ] T6 — Repair direct `scripts/compare.py` execution, update its documented
+  invocation, rebuild Docker, and verify the route appears in Swagger. Route:
+  delegated. Trigger: writer (script, regression test, README) and preparation.
+  Checks: strict TDD RED/GREEN for `uv run python scripts/compare.py --help`, full
+  pytest, Docker build, and non-embedding `/docs` verification. The direct-command
+  regression is green and `/docs` returns 200 with `POST /embeddings/ingest` in
+  OpenAPI; a fresh Docker rebuild remains pending because DNS could not resolve
+  `ghcr.io` while pulling the `uv` image. Estimated 40 lines.
 
 ## Acceptance criteria
 
@@ -72,8 +80,8 @@ retrieval work.
   specified exponential waits.
 - The CLI prints two inputs and their standard-library cosine similarity.
 - Existing test suite passes and new focused tests show observed RED then GREEN.
-- The official dataset is present and schema-validated; live OpenAI sanity checks
-  remain pending until their explicit remote-operation authorization is supplied.
+- The official dataset is present and schema-validated; the three authorized live
+  OpenAI sanity checks are recorded in `SANITY_CHECK.md`.
 
 ## Progress and evidence
 
@@ -123,8 +131,19 @@ retrieval work.
   `POST /embeddings/ingest` in Swagger with `BUD-2024-001`, receiving four
   contextualized embedded chunks. T6 (Docker rebuild/Swagger runtime verification)
   remains pending because it was not included in this task's authorized scope.
+- 2026-10-19: T6 observed RED with `uv run pytest
+  tests/test_embedding_pipeline.py::test_compare_script_runs_directly_for_help -q`:
+  direct execution failed with `ModuleNotFoundError: app`. The script now adds the
+  repository root only when executed as a file; GREEN reported `1 passed`, then
+  `13 passed` focused and `210 passed` full. `uv run python scripts/compare.py
+  --help`, Ruff, and `git diff --check` passed. The Docker image now copies
+  `scripts/`, but `docker compose up --build -d` could not resolve `ghcr.io` to pull
+  `ghcr.io/astral-sh/uv:latest`; the existing healthy container nevertheless served
+  `/docs` with HTTP 200 and its OpenAPI declared `POST /embeddings/ingest`. No
+  embedding endpoint or OpenAI call occurred. Fresh-image verification remains
+  pending network recovery.
 
 ## Next step
 
-T5 is complete. T6 remains pending for a Docker rebuild and documented local
-runtime verification; no scope to repair or alter it was authorized in T5.
+Retry the Docker rebuild once DNS access to `ghcr.io` is restored, then verify that
+the rebuilt image includes `scripts/compare.py`; no embedding request is required.

@@ -25,3 +25,6 @@
   output and interpretation in `app/embedding_pipeline/SANITY_CHECK.md`.
 - [ ] 3.3 Update the README with endpoint and CLI instructions for Docker and local
   `uv` execution; rebuild the Docker service and verify the endpoint in `/docs`.
+  The documentation route is live and declares `POST /embeddings/ingest`, but the
+  fresh rebuild is pending: Docker could not resolve `ghcr.io` for the `uv` base
+  image on 2026-10-19. No embedding request was sent during this verification.
