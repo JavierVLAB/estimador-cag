@@ -9,11 +9,11 @@
 
 ## 2. Embedding ingestion
 
-- [ ] 2.1 Implement `OpenAIEmbedder` with `text-embedding-3-small`, batches of at
+- [x] 2.1 Implement `OpenAIEmbedder` with `text-embedding-3-small`, batches of at
   most 100 inputs, rate-limit backoff, batch telemetry, and cost estimation.
-- [ ] 2.2 Add `POST /embeddings/ingest`, generic provider-error handling, and router
+- [x] 2.2 Add `POST /embeddings/ingest`, generic provider-error handling, and router
   registration in the FastAPI application.
-- [ ] 2.3 Run focused offline checks for schemas, chunking, batching, and endpoint
+- [x] 2.3 Run focused offline checks for schemas, chunking, batching, and endpoint
   error mapping, then run the existing test suite to detect regressions.
 
 ## 3. CLI, evidence, and documentation

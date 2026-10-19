@@ -44,7 +44,7 @@ retrieval work.
   schemas, and the structural chunker. Route: delegated. Trigger: writer (two
   non-trivial files) and preparation work. Checks: strict TDD RED/GREEN for schemas
   and chunk construction; focused pytest. Estimated 100 lines.
-- [ ] T2 — Implement batched OpenAI embedding and the stateless FastAPI ingestion
+- [x] T2 — Implement batched OpenAI embedding and the stateless FastAPI ingestion
   endpoint, including error mapping and router registration. Route: delegated.
   Trigger: writer (embedder, router, app composition, tests). Checks: strict TDD
   RED/GREEN with provider fakes; focused pytest. Estimated 160 lines.
@@ -83,8 +83,17 @@ retrieval work.
   chunker` adds the schemas, tiktoken-backed chunker, lockfile, and focused tests.
   RDD assessment: medium, 207 authored lines, `under_budget`; no review is due yet
   and the reviewed boundary remains `8975aa6` for the accumulated slice.
+- 2026-10-19: T2 delegated under strict TDD. Observed RED:
+  `uv run pytest tests/test_embedding_pipeline.py -q` failed with
+  `ModuleNotFoundError: app.embedding_pipeline.embedder`. GREEN: the focused command
+  reported `8 passed in 0.04s`; `uv run pytest -q` reported `205 passed in 0.61s`;
+  Ruff and `git diff --check` passed. Commit `3c5a413 feat(embeddings): add ingestion
+  endpoint` adds the batched/retrying adapter, typed endpoint, router registration,
+  and offline provider fakes. The accumulated RDD candidate (797 lines) was reviewed
+  by the native reliability lens with no findings and acknowledged as approved;
+  reviewed boundary: `3c5a413`.
 
 ## Next step
 
-Delegate T2 embedding adapter and ingestion endpoint under strict TDD. Keep the
-accumulated review slice based at `8975aa6` until native review becomes due.
+Delegate T3 CLI and README documentation under strict TDD. Dataset and live OpenAI
+sanity checks stay pending on their documented prerequisites.
