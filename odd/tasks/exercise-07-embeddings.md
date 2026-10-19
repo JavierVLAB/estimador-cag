@@ -58,10 +58,11 @@ retrieval work.
   components); focused and full offline pytest passed. The live endpoint was not
   invoked because it would call OpenAI; that verification remains under T5. Commit:
   `1258273 feat(embeddings): add course budget dataset`.
-- [ ] T5 — Run the three specified live OpenAI comparisons and record
+- [x] T5 — Run the three specified live OpenAI comparisons and record
   `SANITY_CHECK.md`. Route: delegated after explicit remote-operation authorization
   and an authorized credential session. Trigger: external operation authorization.
-  Checks: all three outputs recorded with interpretation. Estimated 20 lines.
+  Checks: all three outputs recorded with interpretation. Commit: pending this task's
+  documentation commit. Estimated 20 lines.
 
 ## Acceptance criteria
 
@@ -114,9 +115,16 @@ retrieval work.
   No live endpoint call occurred because that would invoke OpenAI. Commit `1258273
   feat(embeddings): add course budget dataset`. The native reliability review found
   no defects and was acknowledged as approved.
+- 2026-10-19 19:07 CEST: T5 ran exactly the three user-authorized OpenAI comparison
+  pairs via `uv run python -m scripts.compare` with the configured local `.env`
+  credential. Results were A `0.595734`, B `0.191966`, and C `0.540708`; the exact
+  commands, values, and a four-line interpretation are in
+  `app/embedding_pipeline/SANITY_CHECK.md`. The user also manually verified
+  `POST /embeddings/ingest` in Swagger with `BUD-2024-001`, receiving four
+  contextualized embedded chunks. T6 (Docker rebuild/Swagger runtime verification)
+  remains pending because it was not included in this task's authorized scope.
 
 ## Next step
 
-Await explicit authorization for the live OpenAI operation and credential session;
-then complete T5. Docker rebuild/Swagger verification remain pending as the
-corresponding local runtime check.
+T5 is complete. T6 remains pending for a Docker rebuild and documented local
+runtime verification; no scope to repair or alter it was authorized in T5.

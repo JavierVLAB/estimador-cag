@@ -21,7 +21,7 @@
 
 - [x] 3.1 Add `scripts/compare.py` using the shared embedder and standard-library
   cosine similarity.
-- [ ] 3.2 Execute the three prescribed live comparisons and record their numeric
+- [x] 3.2 Execute the three prescribed live comparisons and record their numeric
   output and interpretation in `app/embedding_pipeline/SANITY_CHECK.md`.
 - [ ] 3.3 Update the README with endpoint and CLI instructions for Docker and local
   `uv` execution; rebuild the Docker service and verify the endpoint in `/docs`.
