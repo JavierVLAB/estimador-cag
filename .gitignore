@@ -19,7 +19,7 @@ __pycache__/
 .streamlit/
 .claude/
 .git/
-
+docs/ejercicio*.md
 # Artefactos del stress test que el runner regenera. results.csv NO se ignora:
 # es parte de la entrega del ejercicio 06.
 evals/stress/fixtures/*.pdf
