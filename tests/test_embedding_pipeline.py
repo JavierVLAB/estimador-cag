@@ -6,9 +6,12 @@ import sys
 import pytest
 import tiktoken
 from fastapi.testclient import TestClient
+from sqlalchemy.dialects import postgresql
 
 from app.embedding_pipeline.chunker import JSONStructuralChunker
 from app.embedding_pipeline.embedder import OpenAIEmbedder
+from app.embedding_pipeline.database import get_session
+from app.embedding_pipeline.models import Document
 from app.embedding_pipeline.router import get_embedder
 from app.embedding_pipeline.schemas import Budget, Chunk, EmbeddedChunk
 from app.main import app
@@ -176,46 +179,177 @@ def test_embedder_propagates_non_rate_limit_provider_errors() -> None:
 
 
 class _EndpointEmbedder:
+    def __init__(self) -> None:
+        self.queries: list[str] = []
+
     def embed(self, chunks: list[Chunk]) -> list[EmbeddedChunk]:
         return [EmbeddedChunk(**chunk.model_dump(), embedding=[0.1, 0.2]) for chunk in chunks]
 
+    def embed_one(self, text: str) -> list[float]:
+        self.queries.append(text)
+        return [0.3, 0.4]
 
-def test_ingest_endpoint_returns_embedded_chunks_and_aggregate_stats() -> None:
-    app.dependency_overrides[get_embedder] = lambda: _EndpointEmbedder()
+
+class _FakeTransaction:
+    def __init__(self, session: "_FakeSession") -> None:
+        self._session = session
+
+    async def __aenter__(self) -> None:
+        return None
+
+    async def __aexit__(self, exc_type, exc, tb) -> bool:
+        if exc_type is None:
+            self._session.committed.extend(self._session.pending)
+        else:
+            self._session.rolled_back = True
+        self._session.pending = []
+        return False
+
+
+class _FakeSession:
+    """Just enough of AsyncSession to exercise the endpoint transaction logic."""
+
+    def __init__(self, existing_document_id: int | None = None, rows: list | None = None) -> None:
+        self.existing_document_id = existing_document_id
+        self.rows = rows or []
+        self.pending: list[object] = []
+        self.committed: list[object] = []
+        self.rolled_back = False
+        self.statements: list[object] = []
+
+    def begin(self) -> _FakeTransaction:
+        return _FakeTransaction(self)
+
+    async def scalar(self, statement: object) -> int | None:
+        return self.existing_document_id
+
+    def add(self, instance: object) -> None:
+        self.pending.append(instance)
+
+    def add_all(self, instances) -> None:
+        self.pending.extend(instances)
+
+    async def flush(self) -> None:
+        for instance in self.pending:
+            if isinstance(instance, Document):
+                instance.id = 7
+
+    async def execute(self, statement: object) -> SimpleNamespace:
+        self.statements.append(statement)
+        return SimpleNamespace(all=lambda: self.rows)
+
+
+def _post(path: str, payload: dict, session: _FakeSession, embedder: object):
+    app.dependency_overrides[get_session] = lambda: session
+    app.dependency_overrides[get_embedder] = lambda: embedder
     try:
-        with TestClient(app) as client:
-            response = client.post("/embeddings/ingest", json={"budgets": [_budget().model_dump()]})
+        with TestClient(app, raise_server_exceptions=False) as client:
+            return client.post(path, json=payload)
     finally:
         app.dependency_overrides.clear()
 
+
+def _ingest_payload() -> dict:
+    return {
+        "source_path": "data/budgets_sample.json#BUD-2024-014",
+        "document_type": "historical_budget",
+        "content": _budget().model_dump(),
+    }
+
+
+def test_ingest_endpoint_persists_document_and_chunks_in_one_transaction() -> None:
+    session = _FakeSession()
+
+    response = _post("/embeddings/ingest", _ingest_payload(), session, _EndpointEmbedder())
+
     assert response.status_code == 200
     payload = response.json()
-    assert payload["stats"]["total_budgets"] == 1
-    assert payload["stats"]["total_chunks"] == 2
-    assert payload["stats"]["total_tokens"] > 0
-    assert payload["stats"]["estimated_cost_usd"] > 0
-    assert payload["chunks"][0]["chunk_id"] == "BUD-2024-014::AUTH-001"
+    assert payload["document_id"] == 7
+    assert payload["chunks_created"] == 2
+    assert payload["embedding_dimension"] == 1536
+    assert payload["ingestion_time_ms"] >= 0
+    document, *chunks = session.committed
+    assert isinstance(document, Document)
+    assert document.source_path == "data/budgets_sample.json#BUD-2024-014"
+    assert document.metadata_["sector"] == "finance"
+    assert [chunk.chunk_type for chunk in chunks] == ["component", "component"]
+    assert all(chunk.document_id == 7 for chunk in chunks)
+    assert chunks[0].embedding == [0.1, 0.2]
+    assert chunks[0].metadata_["chunk_key"] == "BUD-2024-014::AUTH-001"
 
 
-def test_ingest_endpoint_maps_provider_errors_to_a_generic_500() -> None:
+def test_ingest_endpoint_returns_409_for_an_already_ingested_source_path() -> None:
+    session = _FakeSession(existing_document_id=3)
+
+    response = _post("/embeddings/ingest", _ingest_payload(), session, _EndpointEmbedder())
+
+    assert response.status_code == 409
+    assert response.json() == {"detail": "Document already ingested", "document_id": 3}
+    assert session.committed == []
+
+
+def test_ingest_endpoint_rolls_back_and_returns_generic_500_when_embedder_fails() -> None:
     class FailingEmbedder:
         def embed(self, chunks: list[Chunk]) -> list[EmbeddedChunk]:
             raise RuntimeError("provider secret detail")
 
-    app.dependency_overrides[get_embedder] = lambda: FailingEmbedder()
-    try:
-        with TestClient(app, raise_server_exceptions=False) as client:
-            response = client.post("/embeddings/ingest", json={"budgets": [_budget().model_dump()]})
-    finally:
-        app.dependency_overrides.clear()
+    session = _FakeSession()
+
+    response = _post("/embeddings/ingest", _ingest_payload(), session, FailingEmbedder())
 
     assert response.status_code == 500
     assert response.json() == {"detail": "Embedding ingestion failed."}
+    assert session.rolled_back
+    assert session.committed == []
 
 
 def test_ingest_endpoint_keeps_fastapi_validation_errors() -> None:
     with TestClient(app) as client:
-        response = client.post("/embeddings/ingest", json={"budgets": []})
+        response = client.post("/embeddings/ingest", json={"source_path": "x"})
+
+    assert response.status_code == 422
+
+
+def test_search_endpoint_ranks_by_cosine_distance_and_maps_rows() -> None:
+    rows = [
+        SimpleNamespace(
+            id=11,
+            document_id=7,
+            chunk_type="component",
+            content="Component: OAuth 2.0 authentication backend",
+            metadata_={"budget_id": "BUD-2024-014"},
+            distance=0.1234,
+        )
+    ]
+    session = _FakeSession(rows=rows)
+    embedder = _EndpointEmbedder()
+
+    response = _post("/search", {"query": "JWT auth", "k": 3}, session, embedder)
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["query"] == "JWT auth"
+    assert payload["k"] == 3
+    assert payload["search_time_ms"] >= 0
+    assert payload["results"] == [
+        {
+            "chunk_id": 11,
+            "document_id": 7,
+            "chunk_type": "component",
+            "content": "Component: OAuth 2.0 authentication backend",
+            "distance": 0.1234,
+            "metadata": {"budget_id": "BUD-2024-014"},
+        }
+    ]
+    assert embedder.queries == ["JWT auth"]
+    sql = str(session.statements[0].compile(dialect=postgresql.dialect()))
+    assert "ORDER BY chunks.embedding <=>" in sql
+    assert "LIMIT" in sql
+
+
+def test_search_endpoint_rejects_non_positive_k() -> None:
+    with TestClient(app) as client:
+        response = client.post("/search", json={"query": "anything", "k": 0})
 
     assert response.status_code == 422
 

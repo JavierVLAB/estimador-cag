@@ -65,6 +65,7 @@ app.add_middleware(
 app.include_router(estimations.router)
 app.include_router(sessions.router)
 app.include_router(embedding_router.router)
+app.include_router(embedding_router.search_router)
 
 
 @app.get("/health")

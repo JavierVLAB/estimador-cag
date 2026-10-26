@@ -16,9 +16,15 @@ services:
     # (redis://localhost:6379) is meant for running uvicorn outside Docker.
     environment:
       REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql+asyncpg://estimator:estimator@postgres:5432/estimator
+      # Scripts launched with `docker compose run --rm estimator ...` run in a
+      # separate container, so they reach the API through the service name.
+      ESTIMATOR_API_BASE_URL: http://estimator:8000
 
     depends_on:
       redis:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
 
     # Bind-mount the app/ directory so code changes are reflected immediately
@@ -27,6 +33,10 @@ services:
     volumes:
       - ./app:/app/app
       - ./tests:/app/tests
+      - ./alembic:/app/alembic
+      - ./data:/app/data
+      - ./scripts:/app/scripts
+      - ./query_examples.py:/app/query_examples.py
 
     # Override the default CMD to enable auto-reload on file changes.
     # Remove --reload for production deployments.
@@ -41,6 +51,25 @@ services:
       timeout: 5s
       start_period: 10s
       retries: 3
+
+  postgres:
+    # Postgres 16 with the pgvector extension precompiled; the initial Alembic
+    # migration activates it with CREATE EXTENSION.
+    image: pgvector/pgvector:pg16
+    container_name: estimator-postgres
+    environment:
+      POSTGRES_DB: estimator
+      POSTGRES_USER: estimator
+      POSTGRES_PASSWORD: estimator
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U estimator -d estimator"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     # Redis Stack bundles the RediSearch + RedisJSON modules that redisvl uses
@@ -62,3 +91,4 @@ services:
 
 volumes:
   redis_data:
+  postgres_data:

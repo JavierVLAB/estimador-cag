@@ -1,6 +1,6 @@
-"""Pydantic contracts for the in-memory budget embedding pipeline."""
+"""Pydantic contracts for the budget embedding pipeline and semantic search."""
 
-from typing import TypeAlias
+from typing import Any, TypeAlias
 
 from pydantic import BaseModel, Field
 
@@ -56,13 +56,44 @@ class EmbeddedChunk(Chunk):
 
 
 class IngestRequest(BaseModel):
-    """Input body for the stateless embedding ingestion endpoint."""
+    """One budget to persist as a document with its embedded chunks."""
 
-    budgets: list[Budget] = Field(min_length=1)
+    source_path: str = Field(min_length=1)
+    document_type: str = Field(min_length=1, max_length=50)
+    content: Budget
 
 
 class IngestResponse(BaseModel):
-    """Embedded chunks and request-scoped aggregate statistics."""
+    """Identifiers and metrics of a persisted ingestion."""
 
-    chunks: list[EmbeddedChunk]
-    stats: dict[str, int | float]
+    document_id: int
+    chunks_created: int
+    embedding_dimension: int
+    ingestion_time_ms: float
+
+
+class SearchRequest(BaseModel):
+    """Free-text semantic query over the persisted chunks."""
+
+    query: str = Field(min_length=1)
+    k: int = Field(default=5, ge=1, le=50)
+
+
+class SearchResult(BaseModel):
+    """One chunk ranked by cosine distance to the query."""
+
+    chunk_id: int
+    document_id: int
+    chunk_type: str
+    content: str
+    distance: float
+    metadata: dict[str, Any]
+
+
+class SearchResponse(BaseModel):
+    """The k nearest chunks and the time spent resolving them."""
+
+    query: str
+    k: int
+    search_time_ms: float
+    results: list[SearchResult]

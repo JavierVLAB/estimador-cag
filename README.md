@@ -212,18 +212,10 @@ El cliente Rails (`estimator-web/`) se adaptó al flujo conversacional con un nu
 
 ## Sesión 07 — Embeddings de presupuestos
 
-El endpoint `POST /embeddings/ingest` transforma presupuestos históricos
-normalizados en un chunk contextualizado por componente y devuelve sus vectores en
-memoria. No escribe en una base de datos ni activa recuperación semántica. Requiere
-`OPENAI_API_KEY`, porque usa `text-embedding-3-small`.
-
-Con el servicio levantado, envía un cuerpo que cumpla el contrato `Budget`:
-
-```bash
-curl -X POST http://localhost:8000/embeddings/ingest \
-  -H "Content-Type: application/json" \
-  -d '{"budgets": [{"budget_id": "BUD-001", "client_metadata": {"name": "Acme", "sector": "retail", "country": "ES"}, "project_summary": "Tienda online", "main_technology": "python", "year": 2026, "total_estimated_hours": 40, "components": [{"component_id": "SHOP-001", "name": "Catálogo", "description": "API de productos", "tech_stack": ["python", "fastapi"], "estimated_hours": 40, "complexity": "medium"}]}]}'
-```
+El chunker estructural genera un chunk contextualizado por componente de cada
+presupuesto y `OpenAIEmbedder` lo convierte en un vector de 1536 dimensiones con
+`text-embedding-3-small`. Desde la Sesión 08, `POST /embeddings/ingest` persiste
+esos chunks en Postgres (ver la sección siguiente). Requiere `OPENAI_API_KEY`.
 
 ### Comparar dos textos
 
@@ -246,3 +238,58 @@ uv run python scripts/compare.py \
   --text-a "API de catálogo para una tienda" \
   --text-b "Servicio de productos de ecommerce"
 ```
+
+## Sesión 08 — Persistencia en pgvector y búsqueda semántica
+
+Postgres 16 con pgvector corre como servicio `postgres` en `docker-compose`. El
+esquema lo gestiona Alembic (`alembic/versions/0001_initial_schema.py`).
+
+```bash
+docker compose up -d postgres
+docker compose run --rm estimator alembic upgrade head
+docker compose up -d estimator
+docker compose run --rm estimator python scripts/ingest_corpus.py   # 15 presupuestos
+docker compose run --rm estimator python query_examples.py > output_examples.txt
+```
+
+- `POST /embeddings/ingest` recibe un presupuesto (`source_path`, `document_type`,
+  `content`) y lo guarda como un `document` con sus `chunks` en una sola
+  transacción. Devuelve `document_id`, `chunks_created`, `embedding_dimension` e
+  `ingestion_time_ms`. Si el `source_path` ya existe, responde 409 con el
+  `document_id` existente. Como el corpus es un único JSON, cada presupuesto se
+  identifica como `data/budgets_sample.json#<budget_id>`.
+- `POST /search` recibe `query` y `k`, embebe la consulta con el mismo modelo y
+  devuelve los `k` chunks más cercanos por distancia coseno.
+
+### Decisiones de esquema
+
+**Dos tablas y no una.** Un presupuesto produce N chunks. Con una sola tabla, la
+metadata del presupuesto (cliente, sector, año) se repetiría en cada chunk, habría
+que actualizarla en N filas a la vez y borrar un presupuesto exigiría acordarse de
+sus chunks. Con `documents` 1:N `chunks` y `ON DELETE CASCADE`, la metadata vive
+en una fila y el borrado es atómico, sin huérfanos.
+
+**Metadata en JSONB y no en columnas.** Lo estable y consultado siempre igual
+(`document_type`, `chunk_type`, fechas) va en columnas tipadas. Lo que el chunker
+enriquece y puede cambiar de una sesión a otra (sector, tecnología, complejidad,
+horas) va en JSONB: añadir un campo no exige una migración. El índice GIN sobre
+`chunks.metadata` permite filtrar por claves arbitrarias sin recorrer la tabla.
+
+**`cosine_distance` (`<=>`) y no L2 ni inner product.** Los modelos de texto
+codifican el significado en la dirección del vector, no en su longitud, y el
+coseno solo mide el ángulo. `text-embedding-3-small` devuelve vectores de norma
+1, así que el inner product daría el mismo orden y sería algo más barato. Aun así
+elegimos coseno porque es la convención en RAG y porque sigue siendo correcto si
+un día se cambia a un modelo que no normaliza. L2 es sensible a la magnitud, y
+eso no aporta nada para texto. El operador de la query tendrá que coincidir con la
+operator class del índice (`vector_cosine_ops`): si no coinciden, Postgres ignora
+el índice sin avisar.
+
+**Por qué aún no hay índice vectorial.** Con 52 chunks, recorrer la tabla entera
+(sequential scan, búsqueda exacta) es rápido y da recall del 100 %:
+`EXPLAIN ANALYZE` muestra `Seq Scan on chunks` + `top-N heapsort` en 0,6 ms. Los
+~200 ms de `search_time_ms` en `output_examples.txt` son casi todos la llamada de
+embedding a OpenAI. Sin índice tenemos la línea base: la latencia y los resultados
+exactos contra los que se medirá en directo lo que aporta HNSW, tanto en velocidad
+como en el recall que se pierde.
+
