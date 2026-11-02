@@ -1,0 +1,98 @@
+=== Step 2 · POST /search
+{
+  "query": "Reunión de alcance — proyecto sin cerrar\nCliente: Nuria Belmonte (responsable de operaciones, clínica privada Vida+)\nConsultor: equipo de estimación\nFecha: segunda reunión, el alcance sigue abierto\n\n[00:00:10] Consultor: Hola Nuria. La última vez quedamos en que ibais a concretar el alcance. ¿Cómo\nlo veis?\n\n[00:00:21] Nuria: Sí, a ver, lo hemos hablado en comité y... bueno, hay de todo. Te cuento y me dices.\nLa idea inicial era una plataforma para que los pacientes pidan cita online, eso era lo prioritario.\nUna agenda, que vean los huecos del médico, reserven, reciban un recordatorio. Eso lo teníamos claro.\n\n[00:01:05] Consultor: Vale, agenda y citas. ¿Y la integración con vuestro sistema clínico?\n\n[00:01:12] Nuria: Ahí está el tema. Porque claro, si hacemos las citas, alguien dijo que ya\npuestos integremos con el historial clínico, lo del estándar ese, ¿HL7? FHIR, eso. Y suena bien,\npero me da un poco de vértigo, porque eso ya es harina de otro costal y no sé si para la primera fase.\n\n[00:02:00] Nuria: Y luego está lo de la videoconsulta. El director médico está empeñado en la\ntelemedicina, que si videollamada con el paciente, sala de espera virtual, notas durante la consulta.\nYo le digo que vayamos paso a paso, pero él lo quiere todo ya. La verdad es que no lo tengo decidido.\n\n[00:02:55] Consultor: Entiendo. Entonces, para acotar: ¿arrancamos con la agenda de citas y dejamos\nFHIR y videoconsulta para después?\n\n[00:03:08] Nuria: Pues... mira, ahora que lo dices en voz alta, igual la agenda sola se queda corta.\nPorque si un paciente pide cita pero luego no podemos ver su historial, ¿de qué nos sirve? A lo mejor\nlo de FHIR sí que es lo primero. O no. Es que depende de a quién preguntes en la clínica.\n\n[00:04:00] Nuria: Y la videoconsulta... no sé, igual eso es lo que de verdad nos diferencia de la\ncompetencia y deberíamos empezar por ahí. Aunque también es lo más caro, me imagino. Uf. ¿Tú qué\nharías?\n\n[00:04:30] Consultor: Podemos plantear escenarios. ¿Hay fecha o presupuesto que nos marque?\n\n[00:04:38] Nuria: Fecha cerrada no. Presupuesto... depende de lo que entre. Mira, lo dejamos así: yo\nlo vuelvo a llevar al comité, porque sinceramente hoy no te puedo decir qué entra y qué no. Te escribo\ncuando lo tengamos. Lo siento, sé que esto no os lo pone fácil.\n\n[00:05:05] Consultor: Sin problema, Nuria. Quedamos a la espera de que cerréis prioridades. Gracias.\n",
+  "k": 5,
+  "search_time_ms": 221.11,
+  "results": [
+    {
+      "chunk_id": 32,
+      "document_id": 9,
+      "chunk_type": "component",
+      "content": "[Project: Patient appointment and telemedicine platform with HL7/FHIR integration]\n[Client sector: healthcare | Year: 2024 | Main tech: python_django]\n\nComponent: Telemedicine video sessions\nDescription: WebRTC-based video consultation with waiting room, in-call notes and secure recording consent handling.\nTech stack: python_django, webrtc\nComplexity: high\nEstimated hours: 160",
+      "distance": 0.5175575996353603,
+      "metadata": {
+        "year": 2024,
+        "budget_id": "BUD-2024-009",
+        "chunk_key": "BUD-2024-009::VIDEO-003",
+        "complexity": "high",
+        "token_count": 82,
+        "component_id": "VIDEO-003",
+        "client_sector": "healthcare",
+        "estimated_hours": 160,
+        "main_technology": "python_django"
+      }
+    },
+    {
+      "chunk_id": 31,
+      "document_id": 9,
+      "chunk_type": "component",
+      "content": "[Project: Patient appointment and telemedicine platform with HL7/FHIR integration]\n[Client sector: healthcare | Year: 2024 | Main tech: python_django]\n\nComponent: Appointment scheduling\nDescription: Scheduling engine with clinician availability, resource booking, reminders and a waitlist for cancellations.\nTech stack: python_django, celery\nComplexity: medium\nEstimated hours: 150",
+      "distance": 0.545698623928716,
+      "metadata": {
+        "year": 2024,
+        "budget_id": "BUD-2024-009",
+        "chunk_key": "BUD-2024-009::APPT-002",
+        "complexity": "medium",
+        "token_count": 81,
+        "component_id": "APPT-002",
+        "client_sector": "healthcare",
+        "estimated_hours": 150,
+        "main_technology": "python_django"
+      }
+    },
+    {
+      "chunk_id": 30,
+      "document_id": 9,
+      "chunk_type": "component",
+      "content": "[Project: Patient appointment and telemedicine platform with HL7/FHIR integration]\n[Client sector: healthcare | Year: 2024 | Main tech: python_django]\n\nComponent: FHIR integration layer\nDescription: HL7 FHIR R4 integration that maps internal patient and encounter records to the hospital EHR, with terminology mapping and audit logging.\nTech stack: python_django, postgresql\nComplexity: high\nEstimated hours: 190",
+      "distance": 0.5832290345306335,
+      "metadata": {
+        "year": 2024,
+        "budget_id": "BUD-2024-009",
+        "chunk_key": "BUD-2024-009::FHIR-001",
+        "complexity": "high",
+        "token_count": 91,
+        "component_id": "FHIR-001",
+        "client_sector": "healthcare",
+        "estimated_hours": 190,
+        "main_technology": "python_django"
+      }
+    },
+    {
+      "chunk_id": 33,
+      "document_id": 9,
+      "chunk_type": "component",
+      "content": "[Project: Patient appointment and telemedicine platform with HL7/FHIR integration]\n[Client sector: healthcare | Year: 2024 | Main tech: python_django]\n\nComponent: Consent and audit module\nDescription: GDPR-aligned consent capture and immutable access audit trail for protected health information.\nTech stack: python_django, postgresql\nComplexity: low\nEstimated hours: 60",
+      "distance": 0.5944905301490444,
+      "metadata": {
+        "year": 2024,
+        "budget_id": "BUD-2024-009",
+        "chunk_key": "BUD-2024-009::CONSENT-004",
+        "complexity": "low",
+        "token_count": 78,
+        "component_id": "CONSENT-004",
+        "client_sector": "healthcare",
+        "estimated_hours": 60,
+        "main_technology": "python_django"
+      }
+    },
+    {
+      "chunk_id": 36,
+      "document_id": 10,
+      "chunk_type": "component",
+      "content": "[Project: Remote patient monitoring with wearable data ingestion and alerts]\n[Client sector: healthcare | Year: 2024 | Main tech: node]\n\nComponent: Care team dashboard\nDescription: Dashboard for clinicians to triage alerts, view patient trends and acknowledge interventions.\nTech stack: react, node\nComplexity: medium\nEstimated hours: 150",
+      "distance": 0.6160900110754608,
+      "metadata": {
+        "year": 2024,
+        "budget_id": "BUD-2024-010",
+        "chunk_key": "BUD-2024-010::CARE-003",
+        "complexity": "medium",
+        "token_count": 70,
+        "component_id": "CARE-003",
+        "client_sector": "healthcare",
+        "estimated_hours": 150,
+        "main_technology": "node"
+      }
+    }
+  ]
+}
