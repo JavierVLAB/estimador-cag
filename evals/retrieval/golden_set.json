@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "k": 5,
+  "criterion": "A budget is relevant when an experienced estimator would use it as a reference for at least one main deliverable of the project: comparable functional scope at component level. Same sector or same technology alone is not enough. Annotated by hand before running any configuration.",
+  "queries": [
+    {
+      "id": "q1_gourmet_store",
+      "query": "Online store for a gourmet food shop: product catalog, shopping cart and checkout with card payments, a customer loyalty program and order confirmation emails.",
+      "relevant_budget_ids": ["BUD-2024-005", "BUD-2024-006", "BUD-2024-007"],
+      "notes": "005 storefront, catalog and checkout; 006 order management and refunds; 007 food retail with inventory sync. 003 (payments gateway) is the expected distractor: a shop integrates a payment provider, it does not build one."
+    },
+    {
+      "id": "q2_telehealth_fhir",
+      "query": "Telehealth app for a network of clinics that integrates with hospital EHRs over HL7 FHIR, books video consultations and records patient consent.",
+      "relevant_budget_ids": ["BUD-2024-009", "BUD-2024-010"],
+      "notes": "009 matches almost every deliverable; 010 patient-facing clinical data and care team flows. Exact identifiers (HL7, FHIR) favour the lexical branch."
+    },
+    {
+      "id": "q3_sme_lending",
+      "query": "We want our lenders to decide automatically whether to approve credit requests from small businesses, and clients should be able to sign the contract digitally.",
+      "relevant_budget_ids": ["BUD-2024-002", "BUD-2024-004"],
+      "notes": "002 credit scoring, origination and e-signature; 004 client onboarding and risk profiling. Paraphrased on purpose: few literal terms shared with the corpus."
+    },
+    {
+      "id": "q4_predictive_maintenance",
+      "query": "Platform that collects readings from thousands of sensors on our production lines, warns the maintenance team before machines fail and shows dashboards to plant operators.",
+      "relevant_budget_ids": ["BUD-2024-013", "BUD-2024-015", "BUD-2024-010"],
+      "notes": "013 is the direct match; 015 high-volume meter data pipeline and forecasting; 010 device data ingestion plus alerting engine, relevant despite the different sector."
+    },
+    {
+      "id": "q5_delivery_logistics",
+      "query": "Logistics app to plan delivery routes for our van fleet, let customers choose delivery time windows and track warehouse stock in real time.",
+      "relevant_budget_ids": ["BUD-2024-007", "BUD-2024-014"],
+      "notes": "007 slot booking, route optimisation and inventory sync; 014 warehouse management and dock scheduling."
+    }
+  ]
+}

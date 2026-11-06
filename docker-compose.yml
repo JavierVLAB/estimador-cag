@@ -36,6 +36,7 @@ services:
       - ./alembic:/app/alembic
       - ./data:/app/data
       - ./scripts:/app/scripts
+      - ./evals:/app/evals
       - ./query_examples.py:/app/query_examples.py
       # Hugging Face cache: the reranker model is downloaded once, not per container.
       - hf_cache:/home/appuser/.cache/huggingface
