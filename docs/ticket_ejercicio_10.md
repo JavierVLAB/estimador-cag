@@ -1,6 +1,6 @@
 # Ejercicio 10 — Búsqueda híbrida y reranking, medidos
 
-Creado: 2026-11-06 · Estado: borrador
+Creado: 2026-11-06 · Estado: en curso
 Enunciado: `docs/ejercicio_10.md` (copia de `../../Curso/10_Tecnicas_recuperacion/00_ejercicio-tecnicas-avanzadas-recuperacion.md`)
 Teoría: lecciones 01 (reranking), 02 (medición) y 03 (búsqueda híbrida) del módulo 10.
 Rama de entrega: `session-10/pre-work`, creada desde `session-09/pre-work`.
@@ -89,16 +89,16 @@ Todo el código (nombres, comentarios, logs) va en inglés, como pide el enuncia
 ## Tareas
 
 ### 1. Base
-- [ ] 1.1 Crear la rama `session-10/pre-work` desde `session-09/pre-work` → verify: `git branch --show-current`
-- [ ] 1.2 Añadir `sentence-transformers`, ajustar Dockerfile y `docker-compose.yml` (volumen de caché, montaje de `evals/`) → verify: Javi reconstruye la imagen y `docker compose exec estimator python -c "import sentence_transformers"`
-- [ ] 1.3 Traer el wrapper y `verify_reranker.py` a `app/retrieval/`, con `RERANKER_MODEL` en `app/config.py` → verify: CA7
+- [x] 1.1 Crear la rama `session-10/pre-work` desde `session-09/pre-work` → verify: `git branch --show-current`
+- [x] 1.2 Añadir `sentence-transformers`, ajustar Dockerfile y `docker-compose.yml` (volumen de caché, montaje de `evals/`) → verify: Javi reconstruye la imagen y `docker compose exec estimator python -c "import sentence_transformers"`
+- [x] 1.3 Traer el wrapper y `verify_reranker.py` a `app/retrieval/`, con `RERANKER_MODEL` en `app/config.py` → verify: CA7
 
 ### 2. Datos
-- [ ] 2.1 Migración `0002` con `content_tsv` y el índice GIN, y la columna en el modelo ORM → verify: CA1, CA2
+- [x] 2.1 Migración `0002` con `content_tsv` y el índice GIN, y la columna en el modelo ORM → verify: CA1, CA2
 
 ### 3. Lógica
-- [ ] 3.1 [P] `app/retrieval/fusion.py` con RRF y sus tests → verify: CA3
-- [ ] 3.2 `app/retrieval/search.py`: ramas vectorial y léxica, híbrida y recall-then-rerank, con tests → verify: CA4, CA5
+- [x] 3.1 [P] `app/retrieval/fusion.py` con RRF y sus tests → verify: CA3
+- [x] 3.2 `app/retrieval/search.py`: ramas vectorial y léxica, híbrida y recall-then-rerank, con tests → verify: CA4, CA5
 - [ ] 3.3 `/search` con `mode` y `rerank`, y valores por defecto de configuración → verify: CA6, llamada real con las cuatro combinaciones
 
 ### 4. Medición
