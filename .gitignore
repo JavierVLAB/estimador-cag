@@ -12,3 +12,15 @@ __pycache__/
 
 # macOS
 .DS_Store
+
+.atl/
+.codegraph/
+.kilo/
+.streamlit/
+.claude/
+.git/
+docs/ejercicio*.md
+# Artefactos del stress test que el runner regenera. results.csv NO se ignora:
+# es parte de la entrega del ejercicio 06.
+evals/stress/fixtures/*.pdf
+evals/stress/smoke.csv

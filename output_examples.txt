@@ -1,0 +1,40 @@
+=== Query 1 · Componente directo conocido
+    "REST API development with JWT authentication for financial sector"  (557.6 ms)
+  1. chunk_id=1    distance=0.4109 type=component | Component: OAuth 2.0 authentication backend Description: Implementation of OAuth 2.0 flows (authorization code, refresh 
+  2. chunk_id=2    distance=0.4760 type=component | Component: PSD2 open banking connectors Description: Account information and payment initiation endpoints compliant with
+  3. chunk_id=3    distance=0.4982 type=component | Component: Transaction ledger service Description: Double-entry transaction ledger with idempotent writes, daily reconci
+  4. chunk_id=4    distance=0.5122 type=component | Component: Push and email notifications Description: Event-driven notifications for transaction alerts and security even
+  5. chunk_id=9    distance=0.5258 type=component | Component: Payment gateway core Description: High-throughput payment authorization and capture service with idempotency 
+
+=== Query 2 · Reformulación semántica
+    "secure backend service with token-based access control for banking applications"  (231.01 ms)
+  1. chunk_id=1    distance=0.4075 type=component | Component: OAuth 2.0 authentication backend Description: Implementation of OAuth 2.0 flows (authorization code, refresh 
+  2. chunk_id=2    distance=0.4556 type=component | Component: PSD2 open banking connectors Description: Account information and payment initiation endpoints compliant with
+  3. chunk_id=3    distance=0.4774 type=component | Component: Transaction ledger service Description: Double-entry transaction ledger with idempotent writes, daily reconci
+  4. chunk_id=4    distance=0.5353 type=component | Component: Push and email notifications Description: Event-driven notifications for transaction alerts and security even
+  5. chunk_id=9    distance=0.5364 type=component | Component: Payment gateway core Description: High-throughput payment authorization and capture service with idempotency 
+
+=== Query 3 · Dominio distinto
+    "mobile application for restaurant reservations"  (378.73 ms)
+  1. chunk_id=24   distance=0.5691 type=component | Component: Delivery slot booking Description: Capacity-aware delivery slot service with optimistic locking to prevent ov
+  2. chunk_id=31   distance=0.5810 type=component | Component: Appointment scheduling Description: Scheduling engine with clinician availability, resource booking, reminder
+  3. chunk_id=26   distance=0.5862 type=component | Component: Real-time inventory sync Description: Near-real-time inventory synchronization from store systems with out-of
+  4. chunk_id=25   distance=0.6048 type=component | Component: Route optimization service Description: Vehicle routing optimization that batches orders into delivery runs m
+  5. chunk_id=4    distance=0.6514 type=component | Component: Push and email notifications Description: Event-driven notifications for transaction alerts and security even
+
+=== Query 4 · Consulta ambigua
+    "integration with external system"  (184.59 ms)
+  1. chunk_id=45   distance=0.5980 type=component | Component: SCADA dashboard integration Description: Read-only integration with the plant SCADA system to overlay predict
+  2. chunk_id=37   distance=0.5981 type=component | Component: Prescription intake and validation Description: Electronic prescription intake with drug-interaction checks, 
+  3. chunk_id=11   distance=0.6030 type=component | Component: Settlement reconciliation Description: Daily settlement file ingestion and three-way reconciliation between g
+  4. chunk_id=50   distance=0.6151 type=component | Component: Smart meter data pipeline Description: Ingestion and validation of smart-meter interval data at scale, with g
+  5. chunk_id=9    distance=0.6197 type=component | Component: Payment gateway core Description: High-throughput payment authorization and capture service with idempotency 
+
+=== Query 5 · Consulta muy específica
+    "migration from monolith to microservices architecture using Kubernetes"  (236.12 ms)
+  1. chunk_id=50   distance=0.6678 type=component | Component: Smart meter data pipeline Description: Ingestion and validation of smart-meter interval data at scale, with g
+  2. chunk_id=48   distance=0.6820 type=component | Component: Yard and dock scheduling Description: Dock-door appointment scheduling and yard movement tracking to reduce t
+  3. chunk_id=34   distance=0.6888 type=component | Component: Wearable data ingestion Description: High-volume ingestion pipeline for heart-rate, SpO2 and activity streams
+  4. chunk_id=47   distance=0.6952 type=component | Component: AGV coordination service Description: Coordination service that assigns tasks to automated guided vehicles, m
+  5. chunk_id=49   distance=0.6960 type=component | Component: Operations KPI reporting Description: Throughput, accuracy and utilization reporting with shift-level rollups
+

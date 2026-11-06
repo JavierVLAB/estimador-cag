@@ -1,148 +1,94 @@
-"""Interfaz conversacional Streamlit del estimador CAG.
+"""Streamlit form for the estimator.
 
-Permite pegar la transcripción de una reunión y ver la estimación token a
-token mientras el modelo la genera. Reutiliza el mismo servicio, prompt y
-configuración que el endpoint HTTP: el CAG no se duplica en la interfaz.
-El historial es solo visual; cada estimación es independiente.
+Streamlit acts as an HTTP client of the FastAPI service: it submits a typed
+``EstimationRequest`` to ``POST /api/v1/estimate`` and renders the response
+text. The endpoint URL is read from ``ESTIMATOR_API_BASE_URL`` (loaded from
+the same ``.env`` as the API), so the same UI works against a local uvicorn
+or against docker-compose.
 """
 
-import time
-from dataclasses import dataclass
+from __future__ import annotations
 
+import os
+
+import httpx
 import streamlit as st
+from dotenv import load_dotenv
 
-from app.config import settings as app_settings
-from app.context.examples import ESTIMATION_EXAMPLES
-from app.services.llm_service import (
-    LLMServiceError,
-    build_system_prompt,
-    generate_estimation_stream,
-)
+from app.schemas.estimation import DetailLevel, OutputFormat, ProjectType
 
-TITULO_APP = "Wrapper de estimación"
-ICONO_APP = ":material/calculate:"
+load_dotenv()
 
+API_BASE_URL = os.getenv("ESTIMATOR_API_BASE_URL", "http://localhost:8000")
+ESTIMATE_ENDPOINT = f"{API_BASE_URL.rstrip('/')}/api/v1/estimate"
 
-@dataclass(frozen=True)
-class UltimaLlamada:
-    """Métricas de la última estimación generada, para mostrar en el sidebar."""
-
-    model: str
-    provider: str
-    input_tokens: int | None
-    output_tokens: int | None
-    total_tokens: int | None
-    seconds: float
-
-
-def _o_guion(valor: int | None) -> str:
-    return str(valor) if valor is not None else "—"
-
-
-st.set_page_config(
-    page_title=TITULO_APP,
-    page_icon=ICONO_APP,
-    layout="centered",
-)
-
-
-@st.dialog("System prompt activo", width="large")
-def mostrar_system_prompt() -> None:
-    st.markdown(build_system_prompt())
-
-
-@st.dialog("Estimaciones de referencia (contexto CAG)", width="large")
-def mostrar_ejemplos() -> None:
-    for ejemplo in ESTIMATION_EXAMPLES:
-        with st.expander(ejemplo.name):
-            st.caption(ejemplo.meeting_summary)
-            st.markdown(ejemplo.estimation)
-
-
-# El historial y las métricas viven en session_state porque Streamlit re-ejecuta
-# el script completo con cada interacción; sin esto se perderían en cada turno.
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-if "last_metrics" not in st.session_state:
-    st.session_state.last_metrics = None
-
-# El sidebar se renderiza en el panel lateral independientemente de dónde
-# aparezca en el script; va antes del chat para leer el código de arriba abajo.
-with st.sidebar:
-    st.subheader("Contexto CAG")
-    if st.button("System prompt", icon=":material/description:", width="stretch"):
-        mostrar_system_prompt()
-    if st.button("Ejemplos", icon=":material/library_books:", width="stretch"):
-        mostrar_ejemplos()
-
-    st.subheader("Parámetros del proveedor", icon=":material/tune:")
-    with st.container(border=True):
-        st.caption(f"**Proveedor:** {app_settings.llm_provider}")
-        st.caption(f"**Modelo:** {app_settings.llm_model}")
-        st.caption(f"**Máx. tokens de salida:** {app_settings.llm_max_output_tokens}")
-        st.caption(f"**Timeout:** {app_settings.llm_timeout_seconds:.0f} s")
-        st.caption(f"**Reintentos:** {app_settings.llm_max_retries}")
-        st.caption("La temperatura no se fija: usa el valor por defecto del SDK del proveedor.")
-
-    st.subheader("Última estimación", icon=":material/monitoring:")
-    ultima: UltimaLlamada | None = st.session_state.last_metrics
-    if ultima:
-        with st.container(border=True):
-            st.caption(f"**Modelo:** {ultima.model} ({ultima.provider})")
-            st.caption(
-                f"**Tokens:** {_o_guion(ultima.input_tokens)} entrada · "
-                f"{_o_guion(ultima.output_tokens)} salida · "
-                f"{_o_guion(ultima.total_tokens)} total"
-            )
-            st.caption(f"**Tiempo:** {ultima.seconds:.2f} s")
-    else:
-        st.caption("Todavía no hay ninguna llamada.")
-
-st.title(TITULO_APP, icon=ICONO_APP)
+st.set_page_config(page_title="Software Estimator", page_icon="📊")
+st.title("Software Estimator")
 st.caption(
-    "Escribe la transcripción de una reunión para obtener una estimación de esfuerzo "
-    "generada por IA, usando como referencia estimaciones reales anteriores."
+    "Fill in the form below to estimate a software project. "
+    "The service produces a free-text estimation following the chosen format."
 )
 
-for mensaje in st.session_state.messages:
-    with st.chat_message(mensaje["role"]):
-        st.markdown(mensaje["content"])
 
-if transcripcion := st.chat_input(
-    "Escribe la transcripción de la reunión", height=60
-):
-    st.session_state.messages.append({"role": "user", "content": transcripcion})
-    with st.chat_message("user"):
-        st.markdown(transcripcion)
+with st.form("estimation_form", clear_on_submit=False):
+    description = st.text_area(
+        "Project description",
+        height=200,
+        placeholder="Describe the project: goals, key features, constraints…",
+        help="Between 20 and 2000 characters.",
+    )
+    project_type = st.selectbox(
+        "Project type",
+        options=[t.value for t in ProjectType],
+        index=1,
+    )
+    detail_level = st.radio(
+        "Detail level",
+        options=[d.value for d in DetailLevel],
+        index=1,
+        horizontal=True,
+    )
+    output_format = st.selectbox(
+        "Output format",
+        options=[f.value for f in OutputFormat],
+        index=0,
+    )
+    submitted = st.form_submit_button("Generate estimation", type="primary")
 
-    with st.chat_message("assistant"):
-        # El tiempo se mide en la interfaz, no en el servicio: el stream
-        # consume la salida aquí, alrededor de la iteración de st.write_stream.
-        inicio = time.perf_counter()
-        flujo = generate_estimation_stream(transcripcion)
-        try:
-            texto = st.write_stream(flujo)
-            exito = True
-        except LLMServiceError:
-            st.error("El proveedor LLM no pudo generar la estimación.", icon=":material/error:")
-            exito = False
-        finally:
-            tiempo = time.perf_counter() - inicio
 
-        if exito:
-            # Solo las respuestas completas entran en el historial; una
-            # respuesta fallida se muestra como error y desaparece al re-render.
-            st.session_state.messages.append({"role": "assistant", "content": texto})
-            st.session_state.last_metrics = UltimaLlamada(
-                model=flujo.model,
-                provider=flujo.provider,
-                input_tokens=flujo.usage.input_tokens if flujo.usage else None,
-                output_tokens=flujo.usage.output_tokens if flujo.usage else None,
-                total_tokens=flujo.usage.total_tokens if flujo.usage else None,
-                seconds=tiempo,
-            )
-            # El sidebar ya se renderizó al principio de este script run con las
-            # métricas anteriores; sin este rerun, las nuevas solo se verían
-            # después de la siguiente interacción del usuario.
-            st.rerun()
+if submitted:
+    if len(description.strip()) < 20:
+        st.error("The description must be at least 20 characters long.")
+    else:
+        payload = {
+            "description": description.strip(),
+            "project_type": project_type,
+            "detail_level": detail_level,
+            "output_format": output_format,
+        }
+        with st.spinner("Calling the estimator service…"):
+            try:
+                response = httpx.post(
+                    ESTIMATE_ENDPOINT,
+                    json=payload,
+                    timeout=httpx.Timeout(120.0, connect=10.0),
+                )
+                response.raise_for_status()
+                body = response.json()
+            except httpx.HTTPStatusError as exc:
+                st.error(f"Service returned {exc.response.status_code}: {exc.response.text}")
+            except httpx.HTTPError as exc:
+                st.error(f"Could not reach the estimator at `{ESTIMATE_ENDPOINT}`: {exc}")
+            else:
+                st.markdown(f"**Prompt version:** `{body.get('prompt_version', '?')}`")
+                st.markdown(body.get("text", ""))
+
+
+with st.sidebar:
+    st.header("Service")
+    st.code(ESTIMATE_ENDPOINT, language="text")
+    primary = os.getenv("PRIMARY_MODEL", "gpt-4o-mini")
+    fallback = os.getenv("FALLBACK_MODEL", "claude-haiku-4-5-20251001")
+    st.markdown(f"**Primary model:** `{primary}`")
+    st.markdown(f"**Fallback model:** `{fallback}`")
+    st.markdown(f"**Cache TTL:** `{os.getenv('CACHE_TTL', '86400')}s`")
