@@ -69,6 +69,10 @@ class Settings(BaseSettings):
     # Inside docker-compose this is overridden to point at the postgres service.
     DATABASE_URL: str = "postgresql+asyncpg://estimator:estimator@localhost:5432/estimator"
 
+    # --- Session 10 fields (hybrid search + reranking) ---
+    # Multilingual cross-encoder, small enough to run on CPU. Loaded lazily.
+    RERANKER_MODEL: str = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
+
     @model_validator(mode="after")
     def validate_at_least_one_api_key(self) -> "Settings":
         """LiteLLM may try either provider via fallback, so we require at least one key."""
