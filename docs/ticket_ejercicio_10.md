@@ -57,7 +57,7 @@ Todo el código (nombres, comentarios, logs) va en inglés, como pide el enuncia
 - [ ] CA6: WHEN se llama a `/search` sin `mode` ni `rerank` THEN la respuesta es la misma que antes del cambio → verify: `pytest tests/test_embedding_pipeline.py` sin modificar sus casos de `/search`
 - [ ] CA7: WHEN se ejecuta la verificación del reranker THEN el modelo se descarga, carga y puntúa el documento relevante por encima → verify: `docker compose exec estimator python -m app.retrieval.verify_reranker` termina con código 0
 - [ ] CA8: WHEN se abre el golden set THEN tiene 5 consultas, cada una con sus presupuestos relevantes y el criterio de anotación → verify: Javi
-- [ ] CA9: WHEN se ejecuta `scripts/measure_retrieval.py` THEN imprime y guarda la tabla A/B/C/D con precision@5 media, recall@5 y latencia mediana, y el detalle por consulta → verify: `docker compose exec estimator python scripts/measure_retrieval.py`
+- [ ] CA9: WHEN se ejecuta `scripts/measure_retrieval.py` THEN imprime y guarda la tabla A/B/C/D con precision@5 media, recall@5 y latencia mediana, y el detalle por consulta → verify: `docker compose exec estimator python -m scripts.measure_retrieval`
 - [ ] CA10: WHEN se lee `docs/resultados_ejercicio_10.md` THEN tiene la tabla de CA9 copiada de la salida real y un párrafo breve que dice qué configuración usar y si el reranking compensa su latencia → verify: Javi
 - [ ] CA11: WHEN se revisa el diff THEN no hay índices vectoriales, filtros por metadata, expansión de consultas ni routing → verify: `git diff session-09/pre-work --stat` y revisión del diff
 - [ ] CA12: WHEN se pasa la suite THEN todos los tests y ruff pasan → verify: `docker compose exec estimator pytest` y `ruff check .`
@@ -99,19 +99,19 @@ Todo el código (nombres, comentarios, logs) va en inglés, como pide el enuncia
 ### 3. Lógica
 - [x] 3.1 [P] `app/retrieval/fusion.py` con RRF y sus tests → verify: CA3
 - [x] 3.2 `app/retrieval/search.py`: ramas vectorial y léxica, híbrida y recall-then-rerank, con tests → verify: CA4, CA5
-- [ ] 3.3 `/search` con `mode` y `rerank`, y valores por defecto de configuración → verify: CA6, llamada real con las cuatro combinaciones
+- [x] 3.3 `/search` con `mode` y `rerank`, y valores por defecto de configuración → verify: CA6, llamada real con las cuatro combinaciones
 
 ### 4. Medición
-- [ ] 4.1 Proponer el golden set (5 consultas, presupuestos relevantes, criterio) y esperar la aprobación de Javi → verify: CA8
-- [ ] 4.2 `scripts/measure_retrieval.py` con precision@5, recall@5 y latencia mediana, con test de las métricas → verify: `pytest tests/test_retrieval_metrics.py`
-- [ ] 4.3 Ejecutar la medición (con autorización para las llamadas de embeddings) y guardar la salida cruda en `odd/s10/` → verify: CA9
+- [x] 4.1 Proponer el golden set (5 consultas, presupuestos relevantes, criterio) y esperar la aprobación de Javi → verify: CA8
+- [x] 4.2 `scripts/measure_retrieval.py` con precision@5, recall@5 y latencia mediana, con test de las métricas → verify: `pytest tests/test_retrieval_metrics.py`
+- [x] 4.3 Ejecutar la medición (con autorización para las llamadas de embeddings) y guardar la salida cruda en `odd/s10/` → verify: CA9
 
 ### 5. Documentación
-- [ ] 5.1 `docs/resultados_ejercicio_10.md` con la tabla, el detalle y las conclusiones → verify: CA10
-- [ ] 5.2 Sección breve en el README: cómo verificar el reranker y cómo lanzar la medición → verify: Javi
+- [x] 5.1 `docs/resultados_ejercicio_10.md` con la tabla, el detalle y las conclusiones → verify: CA10
+- [x] 5.2 Sección breve en el README: cómo verificar el reranker y cómo lanzar la medición → verify: Javi
 
 ### 6. Verificación
-- [ ] 6.1 Ejecutar todos los `→ verify:` y revisar el diff contra el alcance → verify: CA11, CA12
+- [x] 6.1 Ejecutar todos los `→ verify:` y revisar el diff contra el alcance → verify: CA11, CA12
 
 ## Condición de /goal
 

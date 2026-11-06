@@ -293,3 +293,17 @@ embedding a OpenAI. Sin índice tenemos la línea base: la latencia y los result
 exactos contra los que se medirá en directo lo que aporta HNSW, tanto en velocidad
 como en el recall que se pierde.
 
+
+## Sesión 10 — Búsqueda híbrida y reranking
+
+`POST /search` acepta dos campos opcionales: `mode` (`vector` | `hybrid`) y `rerank` (bool). Si no se envían, se usan `SEARCH_MODE` y `RERANK_ENABLED`, que por defecto son `vector` y `false`, el comportamiento de la sesión 08. La rama léxica usa la columna `content_tsv` (migración `0002`, configuración `'english'`), y la fusión es RRF con `RRF_K`. Con reranking, se recuperan `RETRIEVAL_RECALL_K` candidatos y el cross-encoder deja los `k` mejores.
+
+```bash
+docker compose exec estimator alembic upgrade head
+docker compose exec estimator python -m app.retrieval.verify_reranker
+curl -s -X POST localhost:8000/search -H 'content-type: application/json' \
+  -d '{"query": "telehealth app with HL7 FHIR", "k": 5, "mode": "hybrid", "rerank": true}'
+docker compose run --rm estimator python -m scripts.measure_retrieval
+```
+
+El último comando mide las configuraciones A-D contra `evals/retrieval/golden_set.json`. Resultados y conclusiones: `docs/resultados_ejercicio_10.md`.
