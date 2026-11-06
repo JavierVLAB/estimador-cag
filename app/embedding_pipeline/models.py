@@ -4,8 +4,8 @@ from datetime import datetime
 from typing import Any
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import BigInteger, DateTime, ForeignKey, Index, String, Text, func
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import BigInteger, Computed, DateTime, ForeignKey, Index, String, Text, func
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 EMBEDDING_DIMENSION = 1536
@@ -38,7 +38,10 @@ class Chunk(Base):
     __tablename__ = "chunks"
     # GIN lets metadata filters use an index without migrating the schema.
     # No vector index on purpose: the live session measures the sequential scan first.
-    __table_args__ = (Index("ix_chunks_metadata_gin", "metadata", postgresql_using="gin"),)
+    __table_args__ = (
+        Index("ix_chunks_metadata_gin", "metadata", postgresql_using="gin"),
+        Index("ix_chunks_content_tsv", "content_tsv", postgresql_using="gin"),
+    )
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     document_id: Mapped[int] = mapped_column(
@@ -48,6 +51,10 @@ class Chunk(Base):
     content: Mapped[str] = mapped_column(Text, nullable=False)
     embedding: Mapped[list[float] | None] = mapped_column(
         Vector(EMBEDDING_DIMENSION), nullable=True
+    )
+    # Lexical branch of hybrid search; Postgres keeps it in sync with `content`.
+    content_tsv: Mapped[str | None] = mapped_column(
+        TSVECTOR, Computed("to_tsvector('english', content)", persisted=True)
     )
     metadata_: Mapped[dict[str, Any]] = mapped_column(
         "metadata", JSONB, server_default="{}", nullable=False
