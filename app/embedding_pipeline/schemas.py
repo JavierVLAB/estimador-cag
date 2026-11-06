@@ -1,6 +1,6 @@
 """Pydantic contracts for the budget embedding pipeline and semantic search."""
 
-from typing import Any, TypeAlias
+from typing import Any, Literal, TypeAlias
 
 from pydantic import BaseModel, Field
 
@@ -77,10 +77,13 @@ class SearchRequest(BaseModel):
 
     query: str = Field(min_length=1)
     k: int = Field(default=5, ge=1, le=50)
+    # None falls back to SEARCH_MODE / RERANK_ENABLED from the settings.
+    mode: Literal["vector", "hybrid"] | None = None
+    rerank: bool | None = None
 
 
 class SearchResult(BaseModel):
-    """One chunk ranked by cosine distance to the query."""
+    """One retrieved chunk with the scores of the stages it went through."""
 
     chunk_id: int
     document_id: int
@@ -88,6 +91,9 @@ class SearchResult(BaseModel):
     content: str
     distance: float
     metadata: dict[str, Any]
+    # Only present in hybrid mode and with reranking, respectively.
+    rrf_score: float | None = None
+    rerank_score: float | None = None
 
 
 class SearchResponse(BaseModel):

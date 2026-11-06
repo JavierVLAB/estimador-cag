@@ -72,6 +72,14 @@ class Settings(BaseSettings):
     # --- Session 10 fields (hybrid search + reranking) ---
     # Multilingual cross-encoder, small enough to run on CPU. Loaded lazily.
     RERANKER_MODEL: str = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
+    # Defaults for POST /search when the request does not set them. They keep the
+    # session-8 behaviour (pure vector search, no reranking).
+    SEARCH_MODE: Literal["vector", "hybrid"] = "vector"
+    RERANK_ENABLED: bool = False
+    # Candidates recalled before reranking; also the size of each hybrid branch.
+    RETRIEVAL_RECALL_K: int = 50
+    # Reciprocal Rank Fusion smoothing constant.
+    RRF_K: int = 60
 
     @model_validator(mode="after")
     def validate_at_least_one_api_key(self) -> "Settings":

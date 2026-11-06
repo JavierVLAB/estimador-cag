@@ -1,5 +1,6 @@
 """HTTP boundary that persists budget embeddings in pgvector and searches them."""
 
+from functools import lru_cache
 from time import perf_counter
 
 import structlog
@@ -9,6 +10,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.dependencies import get_openai_client
 from app.embedding_pipeline.chunker import JSONStructuralChunker
 from app.embedding_pipeline.database import get_session
@@ -21,6 +23,8 @@ from app.embedding_pipeline.schemas import (
     SearchResponse,
     SearchResult,
 )
+from app.retrieval.reranker import CrossEncoderReranker
+from app.retrieval.search import search
 
 log = structlog.get_logger()
 
@@ -115,33 +119,36 @@ async def ingest_budget(
     )
 
 
-@search_router.post("/search", response_model=SearchResponse)
+@lru_cache
+def get_reranker() -> CrossEncoderReranker:
+    """Process-wide reranker: the model is loaded once, on the first rerank."""
+    return CrossEncoderReranker.from_settings()
+
+
+@search_router.post("/search", response_model=SearchResponse, response_model_exclude_none=True)
 async def search_chunks(
     request: SearchRequest,
     session: AsyncSession = Depends(get_session),
     embedder: OpenAIEmbedder = Depends(get_embedder),
+    reranker: CrossEncoderReranker = Depends(get_reranker),
 ) -> SearchResponse:
-    """Return the k chunks closest to the query by cosine distance."""
+    """Return the k best chunks for the query in the requested retrieval mode."""
+    settings = get_settings()
+    mode = request.mode or settings.SEARCH_MODE
+    rerank = settings.RERANK_ENABLED if request.rerank is None else request.rerank
     started_at = perf_counter()
     # Same model as ingestion, otherwise distances are meaningless.
     query_vector = await run_in_threadpool(embedder.embed_one, request.query)
-
-    # `<=>` (cosine) must match the operator class of the index created live
-    # (vector_cosine_ops); otherwise Postgres silently falls back to a seq scan.
-    distance = Chunk.embedding.cosine_distance(query_vector)
-    stmt = (
-        select(
-            Chunk.id,
-            Chunk.document_id,
-            Chunk.chunk_type,
-            Chunk.content,
-            Chunk.metadata_,
-            distance.label("distance"),
-        )
-        .order_by(distance)
-        .limit(request.k)
+    chunks = await search(
+        session,
+        request.query,
+        query_vector,
+        k=request.k,
+        mode=mode,
+        reranker=reranker if rerank else None,
+        recall_k=settings.RETRIEVAL_RECALL_K,
+        rrf_k=settings.RRF_K,
     )
-    rows = (await session.execute(stmt)).all()
 
     return SearchResponse(
         query=request.query,
@@ -149,13 +156,15 @@ async def search_chunks(
         search_time_ms=round((perf_counter() - started_at) * 1000, 2),
         results=[
             SearchResult(
-                chunk_id=row.id,
-                document_id=row.document_id,
-                chunk_type=row.chunk_type,
-                content=row.content,
-                distance=row.distance,
-                metadata=row.metadata_,
+                chunk_id=chunk.id,
+                document_id=chunk.document_id,
+                chunk_type=chunk.chunk_type,
+                content=chunk.content,
+                distance=chunk.distance,
+                metadata=chunk.metadata_,
+                rrf_score=chunk.rrf_score,
+                rerank_score=chunk.rerank_score,
             )
-            for row in rows
+            for chunk in chunks
         ],
     )
