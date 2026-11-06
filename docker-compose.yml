@@ -37,6 +37,8 @@ services:
       - ./data:/app/data
       - ./scripts:/app/scripts
       - ./query_examples.py:/app/query_examples.py
+      # Hugging Face cache: the reranker model is downloaded once, not per container.
+      - hf_cache:/home/appuser/.cache/huggingface
 
     # Override the default CMD to enable auto-reload on file changes.
     # Remove --reload for production deployments.
@@ -92,3 +94,4 @@ services:
 volumes:
   redis_data:
   postgres_data:
+  hf_cache:

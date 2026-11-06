@@ -46,7 +46,9 @@ COPY alembic/ /app/alembic/
 COPY alembic.ini query_examples.py /app/
 
 # Ensure the non-root user owns everything it needs to run.
-RUN chown -R appuser:appgroup /app
+# The hf_cache volume inherits this ownership, so the reranker model can be cached.
+RUN mkdir -p /home/appuser/.cache/huggingface \
+    && chown -R appuser:appgroup /app /home/appuser/.cache
 
 # Put the virtual environment's bin directory first on PATH so `python` and
 # `uvicorn` resolve to the versions installed inside the venv.
