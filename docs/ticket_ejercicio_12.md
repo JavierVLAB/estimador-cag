@@ -45,8 +45,8 @@ Todo el código (nombres, descripciones, prompts, logs) va en inglés.
 - [x] CA2: WHEN `calculate_estimate` recibe componentes con y sin referencias THEN devuelve la mediana más el 15 %, 0 h y `unbudgeted=True` para los vacíos, y el total → verify: `pytest tests/test_agent_tools.py`
 - [x] CA3: WHEN el modelo devuelve `function_call` THEN el bucle ejecuta cada tool, devuelve un `function_call_output` con el mismo `call_id`, encadena con `previous_response_id` y registra razonamiento, acción y observación → verify: `pytest tests/test_agent_loop.py` con un cliente falso
 - [x] CA4: WHEN se alcanza el máximo de iteraciones THEN el bucle para y lo indica en el resultado → verify: `pytest tests/test_agent_loop.py`
-- [ ] CA5: WHEN se ejecuta el agente con la transcripción simple y `gpt-5-mini` THEN termina por sí solo con una estimación → verify: `docker compose run --rm -v ./odd:/app/odd estimator python -m scripts.run_agent data/session_12/sample_transcript_simple.txt --model gpt-5-mini --out odd/s12/trace_simple.txt`
-- [ ] CA6: WHEN se ejecuta con la transcripción compleja, `gpt-5` y esfuerzo `medium` THEN identifica más de un componente, llama más de una vez a `search_budgets`, llama a `calculate_estimate`, termina solo y la traza muestra razonamiento, acción y observación en cada paso → verify: mismo comando con `sample_transcript_complex.txt --model gpt-5 --effort medium --out odd/s12/trace_complex.txt`, y lectura de la traza
+- [x] CA5: WHEN se ejecuta el agente con la transcripción simple y `gpt-5-mini` THEN termina por sí solo con una estimación → verify: `docker compose run --rm -v ./odd:/app/odd estimator python -m scripts.run_agent data/session_12/sample_transcript_simple.txt --model gpt-5-mini --out odd/s12/trace_simple.txt`
+- [x] CA6: WHEN se ejecuta con la transcripción compleja, `gpt-5` y esfuerzo `medium` THEN identifica más de un componente, llama más de una vez a `search_budgets`, llama a `calculate_estimate`, termina solo y la traza muestra razonamiento, acción y observación en cada paso → verify: mismo comando con `sample_transcript_complex.txt --model gpt-5 --effort medium --out odd/s12/trace_complex.txt`, y lectura de la traza
 - [ ] CA7: WHEN se lee la estimación final THEN es coherente con el último `calculate_estimate` (componentes y total) → verify: Javi
 
 ## Impacto
@@ -66,5 +66,11 @@ Todo el código (nombres, descripciones, prompts, logs) va en inglés.
 - [x] 3.1 Copiar las transcripciones a `data/session_12/` y escribir `scripts/run_agent.py` → verify: `ruff check app/agent scripts/run_agent.py`
 ## 4. Verificación
 - [x] 4.1 Suite completa y lint → verify: `pytest` y `ruff check .`
-- [ ] 4.2 Ejecución con la transcripción simple (CA5), con autorización de Javi
-- [ ] 4.3 Ejecución entregable con la compleja (CA6) y revisión de la traza (CA7)
+- [x] 4.2 Ejecución con la transcripción simple (CA5), con autorización de Javi
+- [x] 4.3 Ejecución entregable con la compleja (CA6) y revisión de la traza (CA7)
+
+## Resultado (2026-11-23)
+
+- **Transcripción simple, `gpt-5-mini`** (`odd/s12/trace_simple.txt`): 3 turnos, 1 búsqueda y 1 cálculo. Un componente con referencia BUD-2024-001 (120 h): 138 h en total. En la primera ejecución el agente partió el único componente en cinco subtareas y contó cinco veces la misma referencia (690 h). El prompt se corrigió para que los componentes sean entregables independientes y para que una referencia histórica no respalde más de un componente.
+- **Transcripción compleja, `gpt-5` con esfuerzo `medium`** (`odd/s12/trace_complex.txt`): 10 turnos, 8 búsquedas (con reformulación en el backend, SAP y la app móvil) y 1 cálculo. Cuatro componentes; el total, 368 h, coincide con el último `calculate_estimate`. La integración con SAP y la app móvil quedan marcadas como `unbudgeted`, porque el corpus no tiene integraciones ERP ni apps móviles: el total infraestima el proyecto y así lo recogen los supuestos de la estimación.
+- El agente hizo las búsquedas en serie, una por turno. Con 10 turnos quedó cerca del máximo de 12.

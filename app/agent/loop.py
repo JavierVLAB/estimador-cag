@@ -25,10 +25,15 @@ discovery meeting with a client and must produce an effort estimate in engineer-
 grounded in the archive of past budgets.
 
 Method:
-1. Read the transcript and decompose the project into its distinct components.
+1. Read the transcript and decompose the project into its distinct components: the \
+independent deliverables the client describes (e.g. a backend, an ERP integration, a \
+mobile app). Do not split one deliverable into its features; if the client describes \
+a single piece, the project has one component.
 2. For each component, use search_budgets to find comparable historical components.
 3. Judge which results really match each component. Keep only the hours of relevant \
-matches; if nothing relevant comes back, try one rephrased search before giving up.
+matches, and never use the same historical component as a reference for more than \
+one of your components. If nothing relevant comes back, try one rephrased search \
+before giving up.
 4. Use calculate_estimate with all the components and their reference hours.
 5. Answer with the final estimate. Take each component's hours and the total from \
 calculate_estimate, list the budget ids you used, flag unbudgeted components, and \
